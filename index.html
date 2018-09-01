@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next mist use-motion" lang="">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -79,13 +79,16 @@
 
 
 
+<meta name="description" content="These violent delights have violent ends">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="VorTex">
 <meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:locale" content="default">
+<meta property="og:site_name" content="VorTex">
+<meta property="og:description" content="These violent delights have violent ends">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
+<meta name="twitter:title" content="VorTex">
+<meta name="twitter:description" content="These violent delights have violent ends">
 
 
 
@@ -101,7 +104,7 @@
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
     duoshuo: {
       userId: '0',
-      author: 'Author'
+      author: 'DC'
     },
     algolia: {
       applicationID: '',
@@ -121,7 +124,7 @@
 
 
 
-  <title>Hexo</title>
+  <title>VorTex</title>
   
 
 
@@ -133,7 +136,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -152,7 +155,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Hexo</span>
+        <span class="site-title">VorTex</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -182,7 +185,17 @@
             
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
-            Home
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
           </a>
         </li>
       
@@ -192,7 +205,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
-            Archives
+            归档
           </a>
         </li>
       
@@ -229,199 +242,16 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/01/raspberry/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/09/01/raspberry/" itemprop="url">Untitled</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-01T22:00:03+08:00">
-                2018-09-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="基于树莓派的简易人脸识别"><a href="#基于树莓派的简易人脸识别" class="headerlink" title="基于树莓派的简易人脸识别"></a>基于树莓派的简易人脸识别</h1><p>##需要硬件</p>
-<ol>
-<li>树莓派一个</li>
-<li>树莓派CSI摄像头 5MP Camera Board Module</li>
-</ol>
-<h2 id="固件安装"><a href="#固件安装" class="headerlink" title="固件安装"></a>固件安装</h2><ol>
-<li>树莓派，内存卡，电源安装好。</li>
-<li>将CSI摄像头按照步骤安装于树莓派上<br><img src="http://ohzz1ndz2.bkt.clouddn.com/1174662-20170531164022664-201628540%204.jpg" alt="步骤一"><br><a href="https://www.cnblogs.com/huan14/p/6924858.html" target="_blank" rel="noopener">图片来源</a></li>
-</ol>
-<h2 id="软件安装"><a href="#软件安装" class="headerlink" title="软件安装"></a>软件安装</h2><h3 id="树莓派系统安装"><a href="#树莓派系统安装" class="headerlink" title="树莓派系统安装"></a>树莓派系统安装</h3><p> 树莓派安装官网最新操作系统，推荐使用NOOBS，这是一个Raspbian的傻瓜安装版。</p>
-<ol>
-<li><p>从官网下载NOOBS，解压zip文件</p>
-</li>
-<li><p>准备格式化后的SD卡，最好8G以上，从SD Formatter 官网下载SD Formatter，按照提示正常安装，将SD卡连接到PC上 通过（读卡器，电脑卡槽都行），格式化</p>
-</li>
-<li><p>把解压后的文件全部放入SD卡内，之后<strong>将SD卡安全拔出</strong>，把SD卡插入到Raspberry </p>
-</li>
-<li><p>连上键盘，鼠标，显示器，启动Rasberry，点击install  等待自动安装的完成。完成后 登录图形界面 （默认登录用户名为pi 密码为raspberry）</p>
-<p>并通过以下命令完成系统更新<br>‘<br>sudo apt-get update<br>sudo apt-get -upgrade<br>‘ </p>
-<h3 id="在树莓派上启动摄像头模块"><a href="#在树莓派上启动摄像头模块" class="headerlink" title="在树莓派上启动摄像头模块"></a>在树莓派上启动摄像头模块</h3><h4 id="开启摄像头"><a href="#开启摄像头" class="headerlink" title="开启摄像头"></a>开启摄像头</h4><ol>
-<li>确认系统更新完成后，用树莓派配置工具来激活摄像头模块<br>‘ sudo raspi-config’<br><img src="http://ohzz1ndz2.bkt.clouddn.com/raspi-config.jpg" alt="raspi-config界面"><br>选择interfacing options<br><img src="http://ohzz1ndz2.bkt.clouddn.com/camera.jpg" alt="选择Camera"><br>将Camera功能设置为Enable，之后<strong>操作系统自动重启</strong></li>
-</ol>
-</li>
-</ol>
-<h4 id="摄像头测试"><a href="#摄像头测试" class="headerlink" title="摄像头测试"></a>摄像头测试</h4><p>重启之后，我们需要对摄像头是否工作做一个测试<br>‘raspistill -t 2000  -o test.jpg’<br>raspistill 是树莓派控制摄像头拍摄的命令， -t 为捕获图片等待时间 单位ms， -0为输出为文件 。</p>
-<p>查看图片命令<br>‘gpicview test.jpg’<br>  若输出正常，则可以使用opencv来实现人脸识别</p>
-<h3 id="人脸识别框架"><a href="#人脸识别框架" class="headerlink" title="人脸识别框架"></a>人脸识别框架</h3><p><img src="http://ohzz1ndz2.bkt.clouddn.com/face_framework.jpeg" alt="人脸识别框架，来源：参考文章1"><br>可以看出分为三个部分</p>
-<ul>
-<li>数据收集</li>
-<li>训练分类器</li>
-<li>人脸识别<h4 id="主要参考文章"><a href="#主要参考文章" class="headerlink" title="主要参考文章"></a>主要参考文章</h4></li>
-</ul>
-<p><a href="https://jireren.github.io/blog/2016/02/27/face-recognition-system-based-on-raspberry-pi-2/" target="_blank" rel="noopener">参考文章1</a>;<a href="https://www.hackster.io/mjrobot/real-time-face-recognition-an-end-to-end-project-a10826" target="_blank" rel="noopener">参考文章2</a></p>
-<h4 id="安装OpenCV"><a href="#安装OpenCV" class="headerlink" title="安装OpenCV"></a>安装OpenCV</h4><p>树莓派系统内自带Python，我们的人脸识别是基于OpenCV实现的，OpenCV具备很强的计算效率，而且可以应用于实时应用，非常适合于使用摄像头的实时人脸识别。</p>
-<ol>
-<li><p>通过以下代码安装OpenCV。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get  update</span><br><span class="line">sudo apt-get upgrade</span><br><span class="line">sudo apt-get install python-opencv</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>安装PiCamera。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">sudo apt-get install python-pip</span><br><span class="line">sudo apt-get install python-dev</span><br><span class="line">sudo pip install picamera</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>这样基于人脸识别的准备工作就完成。</p>
-<h4 id="人脸识别"><a href="#人脸识别" class="headerlink" title="人脸识别"></a>人脸识别</h4><p>从框架图中可知，实现人脸识别的基础任务是<strong>人脸检测</strong>,必须先捕捉到人脸才可以识别他。</p>
-<p>最常见的人脸检测方法为使用<strong>Haar级联分类器</strong> ，很幸运的是 OpenCV具备训练器和检测器。并且OpenCV也包含很多预训练的分类器，相关的xml可以从<strong>OpenCV</strong>上下载,或者从<a href="">我的百度云盘</a>里下载。</p>
-<h4 id="使用OpenCV创建人脸检测器"><a href="#使用OpenCV创建人脸检测器" class="headerlink" title="使用OpenCV创建人脸检测器"></a>使用OpenCV创建人脸检测器</h4><h5 id="import"><a href="#import" class="headerlink" title="import"></a>import</h5><h5 id="在python里使用摄像头"><a href="#在python里使用摄像头" class="headerlink" title="在python里使用摄像头"></a>在python里使用摄像头</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">from picamera import PiCamera</span><br><span class="line">from picamera.array import PiRGBArray</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">camera = PiCamera()</span><br><span class="line">camera.resolution = (<span class="number">320</span>,<span class="number">240</span>)  <span class="comment">#分辨率</span></span><br><span class="line">camera.framerate = <span class="number">60</span>			<span class="comment">#帧数</span></span><br><span class="line">rawCapture =PiRGBArray(camera, size=(<span class="number">320</span>,<span class="number">240</span>))</span><br></pre></td></tr></table></figure>
-<h5 id="载入cascade-file文件来检测人脸"><a href="#载入cascade-file文件来检测人脸" class="headerlink" title="载入cascade file文件来检测人脸"></a>载入cascade file文件来检测人脸</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">face_cascade = cv2.CascadeClassifier(&apos;Cascades/haarcascade_frontalface_default.xml&apos;)</span><br><span class="line">t_start = time.time()</span><br><span class="line">fps = 0</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>haarcascade_frontalface_default.xml   为OpenCV预训练的分类器,路径按照自己放置的路径填写。</p>
-</blockquote>
-<h5 id="定义一些主要函数"><a href="#定义一些主要函数" class="headerlink" title="定义一些主要函数"></a>定义一些主要函数</h5><ol>
-<li>get_faces 函数</li>
-</ol>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">	input:  img     视频拍摄中的图像</span></span><br><span class="line"><span class="string">	output: faces; image  将原图像和识别出的脸一起返回。</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_faces</span><span class="params">(img)</span>:</span></span><br><span class="line">    image = img</span><br><span class="line">    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    faces =face_cascade.detectMultiScale(gray)</span><br><span class="line">    <span class="keyword">return</span> faces,image</span><br></pre></td></tr></table></figure>
-<ol start="2">
-<li><p>draw_frame 函数<br>在识别的脸部画上识别框</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">Args: </span></span><br><span class="line"><span class="string">	 img: 视频拍摄中的图像</span></span><br><span class="line"><span class="string">	  faces：识别出的脸</span></span><br><span class="line"><span class="string">Return:</span></span><br><span class="line"><span class="string">		None</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">draw_frame</span><span class="params">(img,faces)</span>:</span></span><br><span class="line">    <span class="keyword">global</span> fps</span><br><span class="line">    <span class="keyword">global</span> time_t</span><br><span class="line">    <span class="keyword">for</span> (x,y,w,h) <span class="keyword">in</span> faces:</span><br><span class="line">        cv2.rectangle(img,(x,y), (x+w,y+h),(<span class="number">100</span>,<span class="number">255</span>,<span class="number">100</span>),<span class="number">2</span>)</span><br><span class="line">        cv2.putText(img, <span class="string">"face "</span>, (x,y),cv2.FONT_HERSHEY_SIMPLEX,<span class="number">0.5</span>,(<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>),<span class="number">2</span>)</span><br><span class="line">    <span class="comment">####show fps</span></span><br><span class="line">    fps = fps +<span class="number">1</span></span><br><span class="line">    sfps = fps/(time.time()-t_start)</span><br><span class="line">    cv2.putText(img, <span class="string">"FPS"</span>+str(int(sfps)), (<span class="number">10</span>,<span class="number">10</span>), cv2.FONT_HERSHEY_SIMPLEX, <span class="number">0.5</span>,(<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>),<span class="number">2</span>)</span><br><span class="line">    <span class="comment">#######show image</span></span><br><span class="line">    cv2.imshow(<span class="string">"frame"</span>, img)</span><br><span class="line">    cv2.waitKey(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>为了提高拍摄视频的帧数使用functools函数</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    pool = mp.Pool(processes=<span class="number">4</span>)</span><br><span class="line">    fcount = <span class="number">0</span></span><br><span class="line">    camera.capture(rawCapture, format=<span class="string">"bgr"</span>)</span><br><span class="line">    r1 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line">    r2 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line">    r3 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line">    r4 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line"></span><br><span class="line">    face1, img1 = r1.get()</span><br><span class="line">    face2, img2 = r2.get()</span><br><span class="line">    face3, img3 = r3.get()</span><br><span class="line">    face4, img4 = r4.get()</span><br><span class="line">    </span><br><span class="line">    rawCapture.truncate(<span class="number">0</span>)</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">for</span> frame <span class="keyword">in</span> camera.capture_continuous(rawCapture, format=<span class="string">"bgr"</span>,use_video_port=<span class="keyword">True</span>):</span><br><span class="line">        image = frame.array</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">1</span>:</span><br><span class="line">            r1 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face2, img2 = r2.get()</span><br><span class="line">            draw_frame(img2, face2)</span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">2</span>:</span><br><span class="line">            r2 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face3, img3 = r3.get()</span><br><span class="line">            draw_frame(img3, face3)</span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">3</span>:</span><br><span class="line">            r3 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face4, img4 = r4.get()</span><br><span class="line">            draw_frame(img4, face4)</span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">4</span>:</span><br><span class="line">            r4 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face1, img1 = r1.get()</span><br><span class="line">            draw_frame(img1, face1)</span><br><span class="line"></span><br><span class="line">            fcount = <span class="number">0</span> <span class="comment"># restart the count loop</span></span><br><span class="line">        fcount += <span class="number">1</span></span><br><span class="line">        rawCapture.truncate(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>识别的源代码，附下<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">A camera script</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment">###############import##########</span></span><br><span class="line"><span class="keyword">from</span> picamera.array <span class="keyword">import</span> PiRGBArray</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> picamera <span class="keyword">import</span> PiCamera</span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> partial</span><br><span class="line"><span class="keyword">import</span> multiprocessing <span class="keyword">as</span> mp</span><br><span class="line"></span><br><span class="line"><span class="comment">#################import###########</span></span><br><span class="line"></span><br><span class="line">resx = <span class="number">320</span></span><br><span class="line">resy = <span class="number">240</span> </span><br><span class="line"><span class="comment">#########setup camera</span></span><br><span class="line">camera = PiCamera()</span><br><span class="line">camera.resolution = (<span class="number">320</span>,<span class="number">240</span>)</span><br><span class="line">camera.framerate = <span class="number">60</span></span><br><span class="line">rawCapture =PiRGBArray(camera, size=(<span class="number">320</span>,<span class="number">240</span>))</span><br><span class="line"></span><br><span class="line">face_cascade = cv2.CascadeClassifier(<span class="string">'Cascades/haarcascade_frontalface_default.xml'</span>)</span><br><span class="line"></span><br><span class="line">t_start = time.time()</span><br><span class="line">fps = <span class="number">0</span></span><br><span class="line"><span class="comment">#####main function##########</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_faces</span><span class="params">(img)</span>:</span></span><br><span class="line">    image = img</span><br><span class="line">    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)</span><br><span class="line">    faces =face_cascade.detectMultiScale(gray)</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">return</span> faces,image</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">draw_frame</span><span class="params">(img,faces)</span>:</span></span><br><span class="line">    <span class="keyword">global</span> fps</span><br><span class="line">    <span class="keyword">global</span> time_t</span><br><span class="line">    <span class="keyword">for</span> (x,y,w,h) <span class="keyword">in</span> faces:</span><br><span class="line">        cv2.rectangle(img,(x,y), (x+w,y+h),(<span class="number">100</span>,<span class="number">255</span>,<span class="number">100</span>),<span class="number">2</span>)</span><br><span class="line">        cv2.putText(img, <span class="string">"face "</span>, (x,y),cv2.FONT_HERSHEY_SIMPLEX,<span class="number">0.5</span>,(<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>),<span class="number">2</span>)</span><br><span class="line">    <span class="comment">####show fps</span></span><br><span class="line">    fps = fps +<span class="number">1</span></span><br><span class="line">    sfps = fps/(time.time()-t_start)</span><br><span class="line">    cv2.putText(img, <span class="string">"FPS"</span>+str(int(sfps)), (<span class="number">10</span>,<span class="number">10</span>), cv2.FONT_HERSHEY_SIMPLEX, <span class="number">0.5</span>,(<span class="number">0</span>,<span class="number">0</span>,<span class="number">255</span>),<span class="number">2</span>)</span><br><span class="line">    <span class="comment">#######show image</span></span><br><span class="line">    cv2.imshow(<span class="string">"frame"</span>, img)</span><br><span class="line">    cv2.waitKey(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    pool = mp.Pool(processes=<span class="number">4</span>)</span><br><span class="line">    fcount = <span class="number">0</span></span><br><span class="line">    camera.capture(rawCapture, format=<span class="string">"bgr"</span>)</span><br><span class="line">    r1 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line">    r2 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line">    r3 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line">    r4 = pool.apply_async(get_faces, [rawCapture.array])</span><br><span class="line"></span><br><span class="line">    face1, img1 = r1.get()</span><br><span class="line">    face2, img2 = r2.get()</span><br><span class="line">    face3, img3 = r3.get()</span><br><span class="line">    face4, img4 = r4.get()</span><br><span class="line">    </span><br><span class="line">    rawCapture.truncate(<span class="number">0</span>)</span><br><span class="line">     </span><br><span class="line">    <span class="keyword">for</span> frame <span class="keyword">in</span> camera.capture_continuous(rawCapture, format=<span class="string">"bgr"</span>,use_video_port=<span class="keyword">True</span>):</span><br><span class="line">        image = frame.array</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">1</span>:</span><br><span class="line">            r1 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face2, img2 = r2.get()</span><br><span class="line">            draw_frame(img2, face2)</span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">2</span>:</span><br><span class="line">            r2 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face3, img3 = r3.get()</span><br><span class="line">            draw_frame(img3, face3)</span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">3</span>:</span><br><span class="line">            r3 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face4, img4 = r4.get()</span><br><span class="line">            draw_frame(img4, face4)</span><br><span class="line">        <span class="keyword">if</span> fcount == <span class="number">4</span>:</span><br><span class="line">            r4 = pool.apply_async(get_faces, [image])</span><br><span class="line">            face1, img1 = r1.get()</span><br><span class="line">            draw_frame(img1, face1)</span><br><span class="line"></span><br><span class="line">            fcount = <span class="number">0</span> <span class="comment"># restart the count loop</span></span><br><span class="line">        fcount += <span class="number">1</span></span><br><span class="line">        rawCapture.truncate(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/05/pi/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -441,9 +271,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-05T10:15:50+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-05T10:15:50+08:00">
                 2018-04-05
               </time>
             
@@ -482,14 +312,14 @@
 
       
         
-          <h1 id="基于树莓派的简易人脸识别"><a href="#基于树莓派的简易人脸识别" class="headerlink" title="基于树莓派的简易人脸识别"></a>基于树莓派的简易人脸识别</h1><p>##需要硬件</p>
+          <p>##需要硬件</p>
 <ol>
 <li>树莓派一个</li>
 <li><p>树莓派CSI摄像头 5MP Camera Board Module</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2018/04/05/pi/#more" rel="contents">
-              Read more &raquo;
+              阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
@@ -542,13 +372,13 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/05/weibo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -568,9 +398,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-11-05T17:37:18+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-05T17:37:18+08:00">
                 2017-11-05
               </time>
             
@@ -613,7 +443,7 @@
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/11/05/weibo/#more" rel="contents">
-              Read more &raquo;
+              阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
@@ -666,13 +496,13 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/26/latex-无报错卡顿/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -692,9 +522,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-09-26T20:16:30+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-26T20:16:30+08:00">
                 2017-09-26
               </time>
             
@@ -737,7 +567,7 @@
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/09/26/latex-无报错卡顿/#more" rel="contents">
-              Read more &raquo;
+              阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
@@ -790,13 +620,13 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/20/spider/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -816,9 +646,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-20T11:29:31+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-20T11:29:31+08:00">
                 2017-05-20
               </time>
             
@@ -862,7 +692,7 @@
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/05/20/spider/#more" rel="contents">
-              Read more &raquo;
+              阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
@@ -915,13 +745,13 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/05/03/markdown/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -941,9 +771,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-03T13:51:32+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-03T13:51:32+08:00">
                 2017-05-03
               </time>
             
@@ -986,7 +816,7 @@
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/05/03/markdown/#more" rel="contents">
-              Read more &raquo;
+              阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
@@ -1039,13 +869,13 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/24/Escape/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -1065,9 +895,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-24T11:31:30+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-24T11:31:30+08:00">
                 2017-04-24
               </time>
             
@@ -1159,13 +989,13 @@
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/04/01/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="John Doe">
+      <meta itemprop="name" content="such">
       <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
+      <meta itemprop="name" content="VorTex">
     </span>
 
     
@@ -1185,9 +1015,9 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               
-                <span class="post-meta-item-text">Posted on</span>
+                <span class="post-meta-item-text">发表于</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-04-01T13:51:32+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-04-01T13:51:32+08:00">
                 2017-04-01
               </time>
             
@@ -1230,7 +1060,7 @@
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/04/01/hello-world/#more" rel="contents">
-              Read more &raquo;
+              阅读全文 &raquo;
             </a>
           </div>
           <!--/noindex-->
@@ -1302,8 +1132,12 @@
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
-              <p class="site-author-name" itemprop="name">John Doe</p>
-              <p class="site-description motion-element" itemprop="description"></p>
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar_1.jpg"
+                alt="such" />
+            
+              <p class="site-author-name" itemprop="name">such</p>
+              <p class="site-description motion-element" itemprop="description">These violent delights have violent ends</p>
           </div>
 
           <nav class="site-state motion-element">
@@ -1313,8 +1147,8 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
-                  <span class="site-state-item-name">posts</span>
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
                 </a>
               </div>
             
@@ -1325,10 +1159,10 @@
               
               
               <div class="site-state-item site-state-tags">
-                
-                  <span class="site-state-item-count">3</span>
-                  <span class="site-state-item-name">tags</span>
-                
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
               </div>
             
 
@@ -1363,17 +1197,17 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2016 &mdash; <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">John Doe</span>
+  <span class="author" itemprop="copyrightHolder">such</span>
 
   
 </div>
 
 
-  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
 
 
 
@@ -1381,7 +1215,7 @@
 
 
 
-  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
 
 
 
