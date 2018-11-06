@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="RL ML," />
+  <meta name="keywords" content="机器学习,强化学习," />
 
 
 
@@ -80,7 +80,7 @@
 
 
 <meta name="description" content="强化学习是最近很火的一个研究方向，并且在多个领域取得成功，比如AlphaGo 和Dota2的AI选手，星际争霸2最近也取得了很多的突破。学习的一点心得体会记录下来。">
-<meta name="keywords" content="RL ML">
+<meta name="keywords" content="机器学习,强化学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="强化学习">
 <meta property="og:url" content="https://suchot.github.io/2018/10/30/RL/index.html">
@@ -88,10 +88,10 @@
 <meta property="og:description" content="强化学习是最近很火的一个研究方向，并且在多个领域取得成功，比如AlphaGo 和Dota2的AI选手，星际争霸2最近也取得了很多的突破。学习的一点心得体会记录下来。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://lilianweng.github.io/lil-log/assets/images/RL_illustration.png">
-<meta property="og:image" content="https://pic4.zhimg.com/80/v2-444fc8bffca56f64f6599818800c54df_hd.png">
+<meta property="og:image" content="https://suchot-1255547917.cos.ap-shanghai.myqcloud.com/RL_illustration.png">
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-071d680f97a7cfc7199f03a700b1f9a2_hd.png">
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-ee67be43e30fababfab0fb4820db303f_hd.png">
-<meta property="og:updated_time" content="2018-11-06T02:34:41.147Z">
+<meta property="og:updated_time" content="2018-11-06T08:02:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="强化学习">
 <meta name="twitter:description" content="强化学习是最近很火的一个研究方向，并且在多个领域取得成功，比如AlphaGo 和Dota2的AI选手，星际争霸2最近也取得了很多的突破。学习的一点心得体会记录下来。">
@@ -105,7 +105,7 @@
     root: '/',
     scheme: 'Mist',
     version: '5.1.4',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
     tabs: true,
     motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
@@ -206,12 +206,32 @@
         </li>
       
         
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
         <li class="menu-item menu-item-archives">
           <a href="/archives/" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
             
             归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
           </a>
         </li>
       
@@ -283,11 +303,45 @@
             
 
             
+              <span class="post-meta-divider">|</span>
+            
 
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2018-11-06T16:02:08+08:00">
+                2018-11-06
+              </time>
             
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/研究/" itemprop="url" rel="index">
+                    <span itemprop="name">研究</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -297,12 +351,26 @@
           
 
           
-            <span class="post-meta-divider">|</span>
-            <span class="page-pv"><i class="fa fa-file-o"></i>
-            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
-            </span>
-          
 
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.7k
+                </span>
+              
+
+              
+
+              
+            </div>
           
 
           
@@ -340,10 +408,17 @@
 <h1 id="Bellman-方程"><a href="#Bellman-方程" class="headerlink" title="Bellman 方程"></a>Bellman 方程</h1><h2 id="马尔可夫奖励过程的Bellman方程"><a href="#马尔可夫奖励过程的Bellman方程" class="headerlink" title="马尔可夫奖励过程的Bellman方程"></a>马尔可夫奖励过程的Bellman方程</h2><p>$$<br>v(s)= \mathbb{E} [R_{t+1} + \gamma V(S_{t+1}) \vert S_t = s]<br>$$<br>该函数被称为马尔可夫奖励过程的Bellman方程，也可以由如下节点展示</p>
 <p><img src="" alt="由$s$到$s^{&#39;}$的转移节点图"></p>
 <p>为了计算出$s$状态下的价值函数$v(s)$。需要对所有以概率$P_{ss^{‘}}$被转移到$s^{‘}$状态下的价值函数值求和，再加上到当前状态的即时回报$R_s$,可以写成：<br>$$<br>v(s) = R_s + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’} v(s’)<br>$$</p>
-<h3 id="Bellman方程的矩阵形式和求解"><a href="#Bellman方程的矩阵形式和求解" class="headerlink" title="Bellman方程的矩阵形式和求解"></a>Bellman方程的矩阵形式和求解</h3><p><img src="https://pic4.zhimg.com/80/v2-444fc8bffca56f64f6599818800c54df_hd.png" alt=""></p>
+<h3 id="Bellman方程的矩阵形式和求解"><a href="#Bellman方程的矩阵形式和求解" class="headerlink" title="Bellman方程的矩阵形式和求解"></a>Bellman方程的矩阵形式和求解</h3><p><img src="https://suchot-1255547917.cos.ap-shanghai.myqcloud.com/RL_illustration.png" alt=""></p>
 <p>矩阵的具体表达形式:<br><img src="https://pic3.zhimg.com/80/v2-071d680f97a7cfc7199f03a700b1f9a2_hd.png" alt=""><br>Bellman方程是一个线性方程组，因此理论上解可以直接求解：<br><img src="https://pic4.zhimg.com/80/v2-ee67be43e30fababfab0fb4820db303f_hd.png" alt=""></p>
 <p>实际上，计算复杂度是 $O(n^{3})$， n 是状态数量。因此直接求解仅适用于小规模的MRPs。大规模MRP的求解通常使用迭代法。常用的迭代方法有：动态规划Dynamic Programming、蒙特卡洛评估Monte-Carlo evaluation、时序差分学习Temporal-Difference。</p>
-<h2 id="马尔可夫决策过程-Markov-Decision-Process"><a href="#马尔可夫决策过程-Markov-Decision-Process" class="headerlink" title="马尔可夫决策过程(Markov Decision Process)"></a>马尔可夫决策过程(Markov Decision Process)</h2>
+<h2 id="马尔可夫决策过程-Markov-Decision-Process"><a href="#马尔可夫决策过程-Markov-Decision-Process" class="headerlink" title="马尔可夫决策过程(Markov Decision Process)"></a>马尔可夫决策过程(Markov Decision Process)</h2><p>相较于马尔科夫奖励过程，马尔科夫决策过程多了一个动作集合$A$，为当前状态下可以采取的动作，可以表示成这样的一个元组$&lt;S,A,P,R,\gamma&gt;$。此时从状态$s$的直接回报还依赖于在当前状态下选取的动作$a$，表示为：<br>$$<br>R(s, a) = \mathbb{E} [R_{t+1} \vert S_t = s, A_t = a]<br>$$</p>
+<h2 id="策略-Policy"><a href="#策略-Policy" class="headerlink" title="策略(Policy)"></a>策略(Policy)</h2><p>此时我们将讨论主体如何决定在特定状态下必须采取哪些动作。 这由策略来$\pi$表示，从数学上来说策略$\pi$是给定状态下可采取的动作的概率分布。</p>
+<p>对于过程中某一状态$s$采取可能行为$a$的概率分布由：</p>
+<ul>
+<li>Deterministic      $\pi(s) = a$</li>
+<li>Stochastic         $\pi(a \vert s) = \mathbb{P}_\pi [A=a \vert S=s]$</li>
+</ul>
+
       
     </div>
     
@@ -378,7 +453,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/RL-ML/" rel="tag"># RL ML</a>
+            <a href="/tags/机器学习/" rel="tag"># 机器学习</a>
+          
+            <a href="/tags/强化学习/" rel="tag"># 强化学习</a>
           
         </div>
       
@@ -487,6 +564,15 @@
             
 
             
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
 
             
               
@@ -526,7 +612,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#深度强化学习基本概念"><span class="nav-number">1.</span> <span class="nav-text">深度强化学习基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#马尔科夫决策过程"><span class="nav-number">2.</span> <span class="nav-text">马尔科夫决策过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫过程"><span class="nav-number">2.1.</span> <span class="nav-text">马尔可夫过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫奖励过程"><span class="nav-number">2.2.</span> <span class="nav-text">马尔可夫奖励过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#价值函数Value-Function"><span class="nav-number">2.3.</span> <span class="nav-text">价值函数Value Function</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bellman-方程"><span class="nav-number">3.</span> <span class="nav-text">Bellman 方程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫奖励过程的Bellman方程"><span class="nav-number">3.1.</span> <span class="nav-text">马尔可夫奖励过程的Bellman方程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman方程的矩阵形式和求解"><span class="nav-number">3.1.1.</span> <span class="nav-text">Bellman方程的矩阵形式和求解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫决策过程-Markov-Decision-Process"><span class="nav-number">3.2.</span> <span class="nav-text">马尔可夫决策过程(Markov Decision Process)</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#深度强化学习基本概念"><span class="nav-number">1.</span> <span class="nav-text">深度强化学习基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#马尔科夫决策过程"><span class="nav-number">2.</span> <span class="nav-text">马尔科夫决策过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫过程"><span class="nav-number">2.1.</span> <span class="nav-text">马尔可夫过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫奖励过程"><span class="nav-number">2.2.</span> <span class="nav-text">马尔可夫奖励过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#价值函数Value-Function"><span class="nav-number">2.3.</span> <span class="nav-text">价值函数Value Function</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bellman-方程"><span class="nav-number">3.</span> <span class="nav-text">Bellman 方程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫奖励过程的Bellman方程"><span class="nav-number">3.1.</span> <span class="nav-text">马尔可夫奖励过程的Bellman方程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman方程的矩阵形式和求解"><span class="nav-number">3.1.1.</span> <span class="nav-text">Bellman方程的矩阵形式和求解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#马尔可夫决策过程-Markov-Decision-Process"><span class="nav-number">3.2.</span> <span class="nav-text">马尔可夫决策过程(Markov Decision Process)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#策略-Policy"><span class="nav-number">3.3.</span> <span class="nav-text">策略(Policy)</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -564,32 +650,12 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a></div>
 
 
 
 
         
-<div class="busuanzi-count">
-  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-  
-    <span class="site-uv">
-      <i class="fa fa-user"></i>
-      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
-      
-    </span>
-  
-
-  
-    <span class="site-pv">
-      <i class="fa fa-eye"></i>
-      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
-      
-    </span>
-  
-</div>
-
 
 
 
