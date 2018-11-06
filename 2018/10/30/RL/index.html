@@ -91,7 +91,7 @@
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-444fc8bffca56f64f6599818800c54df_hd.png">
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-071d680f97a7cfc7199f03a700b1f9a2_hd.png">
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-ee67be43e30fababfab0fb4820db303f_hd.png">
-<meta property="og:updated_time" content="2018-11-05T15:34:07.390Z">
+<meta property="og:updated_time" content="2018-11-06T02:27:47.127Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="强化学习">
 <meta name="twitter:description" content="强化学习是最近很火的一个研究方向，并且在多个领域取得成功，比如AlphaGo 和Dota2的AI选手，星际争霸2最近也取得了很多的突破。学习的一点心得体会记录下来。">
@@ -329,14 +329,14 @@
 <p>更正式的说，几乎所有的RL问题都可以定义为马尔科夫决策过程，这是学习RL绕不开的一个概念。</p>
 <p>在马尔科夫决策过程中所有的状态（states）可以被认为其具有马尔可夫性质（ “Markov” property）即：未来状态仅依赖于当前状态<br>$$<br>\mathbb{P}[ S_{t+1} \vert S_t ] = \mathbb{P} [S_{t+1} \vert S_1, \dots, S_t]<br> \tag{Eq.1}<br>$$</p>
 <h2 id="马尔可夫过程"><a href="#马尔可夫过程" class="headerlink" title="马尔可夫过程"></a>马尔可夫过程</h2><p>马尔可夫过程是一个随机过程，也就是从当前状态$s$是以一定概率到$P_{ss^{‘}}$到下个状态$s^{‘}$。例如我们在一个马尔可夫过程中，告诉智能体向左转，但是我们智能体在环境可能会遇到某些特殊情况，导致我们只会有0.998的概率确实向左转。剩下的0.002的概率是由环境决定下一个状态。</p>
-<p>$P_{ss^{‘}}$可以被认为是状态转移矩阵$P$中的一个值，定义为从所以状态s到所有后继状态$s^{‘}$的转移概率<br>$$<br>\mathbf{P} =<br>from \stackrel{\mathit{to}}{\left[<br>    \begin{array}{ccc}<br>    P_{11} &amp; \ldots&amp;  P_{1n}\<br>    \vdots &amp; \ddots &amp; \vdots\<br>    P_{n1} &amp; \ldots &amp; P_{nn}<br>    \end{array}<br>     \right]}<br>$$<br>式中n为状态数量， 矩阵中每一行的元素和为1<br>马尔可夫过程 又称为马尔可夫链，它是一个无记忆的随机过程，可以用元组$&lt;S,P&gt;$表示，其中$S$是有限数量的状态集，$P$是状态转移概率矩阵。</p>
+<p>$P_{ss^{‘}}$可以被认为是状态转移矩阵$P$中的一个值，定义为从所以状态s到所有后继状态$s^{‘}$的转移概率<br>$$<br>\mathbf{P} =<br>from \stackrel{\mathit{to}}{\left[<br>    \begin{array}{ccc}<br>    P_{11} &amp; \ldots&amp;  P_{1n}\\<br>    \vdots &amp; \ddots &amp; \vdots\\<br>    P_{n1} &amp; \ldots &amp; P_{nn}<br>    \end{array}<br>     \right]}<br>$$<br>式中n为状态数量， 矩阵中每一行的元素和为1<br>马尔可夫过程 又称为马尔可夫链，它是一个无记忆的随机过程，可以用元组$&lt;S,P&gt;$表示，其中$S$是有限数量的状态集，$P$是状态转移概率矩阵。</p>
 <h2 id="马尔可夫奖励过程"><a href="#马尔可夫奖励过程" class="headerlink" title="马尔可夫奖励过程"></a>马尔可夫奖励过程</h2><p>马尔可夫奖励过程也是元组，在马尔可夫过程基础上增加了奖励$R$和衰减系数$\gamma\in(0,1)$ ,元组可以表示为$&lt;S,P,R,\gamma&gt;$ $R$是奖励函数。$S$状态下的奖励是某一时刻$t$处在状态$s$下，在下一个时刻$t+1$时能获得奖励期望：<br>$$<br>R_s = \mathbb{E} [R_{t+1} \vert S_t = s]<br>$$</p>
 <p>衰减系数$\gamma$的引入的原因 1. 有数学表达式的简便，避免了无限循环。 2. 现实生活中远期利益具有不确定性。引入衰减系数更加符合人们的常识。</p>
 <p>我们感兴趣的主要是最大化积累奖励$G_t$，他是智能体(agent)在一个马尔科夫奖励链上从t时刻开始往后所有的奖励的有衰减的总和。其中衰减系数体现了未来的奖励在当前时刻的价值比例。$\gamma  \rightarrow0$表明趋向于“短视”性收益；$\gamma \rightarrow 1$则表明偏重考虑长远的收益。<br>$$<br>G_t = R_{t+1} + \gamma R_{t+2} + \dots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}<br>$$</p>
 <h2 id="价值函数Value-Function"><a href="#价值函数Value-Function" class="headerlink" title="价值函数Value Function"></a>价值函数Value Function</h2><p>价值函数给出了某一状态或某一行为的长期价值。</p>
-<p>价值函数$v(s)$,定义：一个马尔科夫奖励过程中某一状态的价值函数为从该状态开始的马尔可夫链收获的期望：<br>$$V(s) = \mathbb{E}_[G_t \vert S_t = s]<br>$$</p>
+<p>价值函数$v(s)$,定义：一个马尔科夫奖励过程中某一状态的价值函数为从该状态开始的马尔可夫链收获的期望：<br>$$V(s) = \mathbb{E}[G_t \vert S_t = s]<br>$$</p>
 <p>利用价值函数定义公式可以推导出<strong>贝尔曼方程（Bellman equation)</strong></p>
-<p>$$<br>% &lt;![CDATA[<br>\begin{aligned}<br>v(s) &amp;= \mathbb{E}[G_t \vert S_t = s] \<br>&amp;= \mathbb{E} [R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots \vert S_t = s] \<br>&amp;= \mathbb{E} [R_{t+1} + \gamma (R_{t+2} + \gamma R_{t+3} + \dots) \vert S_t = s] \<br>&amp;= \mathbb{E} [R_{t+1} + \gamma G_{t+1} \vert S_t = s] \<br>&amp;= \mathbb{E} [R_{t+1} + \gamma V(S_{t+1}) \vert S_t = s]<br>\end{aligned} %]]&gt;<br>$$<br>推导比较简单，只是在最后$G_{t+1}$变成了$v(S_{t+1})$ 理由是收获的期望等于收获期望的期望。可以看得 价值函数可由两部分组成，一是该状态的即时奖励期望，即时奖励期望等于即时奖励，因为根据即时奖励的定义，它与下一个状态无关；另一个是下一时刻状态的价值期望，可以根据下一时刻状态的概率分布得到其期望。</p>
+<p>$$<br>% &lt;![CDATA[<br>\begin{aligned}<br>v(s) &amp;= \mathbb{E}[G_t \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma (R_{t+2} + \gamma R_{t+3} + \dots) \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma G_{t+1} \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma V(S_{t+1}) \vert S_t = s]<br>\end{aligned} %]]&gt;<br>$$<br>推导比较简单，只是在最后$G_{t+1}$变成了$v(S_{t+1})$ 理由是收获的期望等于收获期望的期望。可以看得 价值函数可由两部分组成，一是该状态的即时奖励期望，即时奖励期望等于即时奖励，因为根据即时奖励的定义，它与下一个状态无关；另一个是下一时刻状态的价值期望，可以根据下一时刻状态的概率分布得到其期望。</p>
 <h1 id="Bellman-方程"><a href="#Bellman-方程" class="headerlink" title="Bellman 方程"></a>Bellman 方程</h1><h2 id="马尔可夫奖励过程的Bellman方程"><a href="#马尔可夫奖励过程的Bellman方程" class="headerlink" title="马尔可夫奖励过程的Bellman方程"></a>马尔可夫奖励过程的Bellman方程</h2><p>$$<br>v(s)= \mathbb{E} [R_{t+1} + \gamma V(S_{t+1}) \vert S_t = s]<br>$$<br>该函数被称为马尔可夫奖励过程的Bellman方程，也可以由如下节点展示</p>
 <p><img src="" alt="由$s$到$s^{&#39;}$的转移节点图"></p>
 <p>为了计算出$s$状态下的价值函数$v(s)$。需要对所有以概率$P_{ss^{‘}}$被转移到$s^{‘}$状态下的价值函数值求和，再加上到当前状态的即时回报$R_s$,可以写成：<br>$$<br>v(s) = R_s + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’} v(s’)<br>$$</p>
