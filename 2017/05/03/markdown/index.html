@@ -554,7 +554,8 @@ $$
 
   
 
-
+  
+  
 
         </div>
         
@@ -842,6 +843,21 @@ $$
 
 
 
+
+  <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+  <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+   <script type="text/javascript">
+        var gitalk = new Gitalk({
+          clientID: '4c3c296aa618af2f3f22',
+          clientSecret: '7c0354a7bf0302fdea06afd254c383d8f91bbb56',
+          repo: 'suchot.github.io',
+          owner: 'suchot',
+          admin: ['suchot'],
+          id: location.pathname,
+          distractionFreeMode: 'true'
+        })
+        gitalk.render('gitalk-container')           
+       </script>
 
   
 
