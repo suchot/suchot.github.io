@@ -90,7 +90,9 @@
 <meta property="og:image" content="https://i.loli.net/2018/11/23/5bf77cd9a77e7.png">
 <meta property="og:image" content="https://i.loli.net/2018/11/23/5bf7b006adcb9.png">
 <meta property="og:image" content="https://i.loli.net/2018/11/26/5bfbbf76f27a5.png">
-<meta property="og:updated_time" content="2018-11-26T14:57:30.437Z">
+<meta property="og:image" content="https://i.loli.net/2018/11/27/5bfcec2e16758.png">
+<meta property="og:image" content="https://i.loli.net/2018/12/02/5c03df916b7b6.png">
+<meta property="og:updated_time" content="2018-12-02T13:39:57.083Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="强化学习-算法Deep Q-Learning">
 <meta name="twitter:description" content="从上一篇中，我们了解了强化学习的一些重要的基本概念： 马尔可夫决策过程，贝尔曼方程 等等。 为了理解Deep Q-Learning，需要先学习这些 基本概念。">
@@ -312,8 +314,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-11-26T22:57:30+08:00">
-                2018-11-26
+              <time title="更新于" itemprop="dateModified" datetime="2018-12-02T21:39:57+08:00">
+                2018-12-02
               </time>
             
           </span>
@@ -362,7 +364,7 @@
                   <span class="post-meta-item-text">字数统计&#58;</span>
                 
                 <span title="字数统计">
-                  1.8k
+                  2.6k
                 </span>
               
 
@@ -437,13 +439,30 @@
 <p>注意: 前两步和SARSA算法相同，在步骤3中Q-Learning并没有根据当前的策略选择第二次的动作，而是独立于当前策略从最佳$Q$值中估计$Q_{*}$。</p>
 <div align="center"><br><br><img src="https://i.loli.net/2018/11/26/5bfbbf76f27a5.png" alt="sarsa_vs_q_learning.png"><br></div>
 
-<h2 id="DQN-Deep-Q-Network"><a href="#DQN-Deep-Q-Network" class="headerlink" title="DQN(Deep Q-Network)"></a>DQN(Deep Q-Network)</h2><p>到了本节的重点DQN，理论上来说我们可以通过Q-Learning来最小化$Q_{*}(.)$来优化所有状态下的状态行为对，比如一个巨大的表，但是当状态行为空间太大的时候，计算就变得不可能。因此人们使用函数来估计Q值，这种方法叫做<strong>函数近似（function approximation）</strong>，比如我们使用$\theta$参数下的函数来计算Q值，我们可以吧Q值函数表示为$Q(s,a;\theta)$</p>
+<h2 id="DQN-Deep-Q-Network"><a href="#DQN-Deep-Q-Network" class="headerlink" title="DQN(Deep Q-Network)"></a>DQN(Deep Q-Network)</h2><p>到了本节的重点DQN，理论上来说我们可以通过Q-Learning来最小化$Q_{*}(.)$来优化所有状态下的状态行为对，比如一个巨大的表，但是当状态行为空间太大的时候，计算就变得不可能。因此人们使用函数来估计Q值，这种方法叫做<strong>函数近似（function approximation）</strong>，比如我们使用$\theta$参数下的函数来计算Q值，我们可以吧Q值函数表示为$Q(s,a;\theta)$。同时当我们观察更新规则，当$Q(s, a)$于TD-target值相同时，更新就会停止。也就是说$Q(s, a)$此时收敛到了真值，我们的目标也就达到了。</p>
+<p>所以说目标：是为了最小化TD-target和$Q(s,a)$之间的差异，可由平方误差损失函数表示，求解最小化这个损失函数可以由梯度下降算法来解决。<br>$$<br>\mathcal{L}(\theta) = \mathbb{E}<em>{(s, a, r, s’) \sim U(D)} \Big[ \big( \underbrace{r + \gamma \max</em>{a’} Q(s’, a’; \theta^{-})}_{TD-target} - Q(s, a; \theta) \big)^2 \Big]<br>$$<br>其中$U(D)$表示经验回放里的均匀分布，$\theta^{-}$是frozen target Q-network 参数（后面再介绍）</p>
 <p>但是，当Q-Learning 与非线性Q值函数近似和bootstrapping 结合后会使算法变得不稳定和发散（divergence)。</p>
-<p>Deep-Q-Network(“DQN”;Mnih et al. 2015)通过两种创新机制，极大地改善和稳定Q-learning的训练过程</p>
+<p>Deep-Q-Network(“DQN”;Mnih et al. 2015)通过多种创新机制，极大地改善和稳定Q-learning的训练过程</p>
+<h3 id="Target-Networ-Q-Network"><a href="#Target-Networ-Q-Network" class="headerlink" title="Target-Networ;Q-Network"></a><strong>Target-Networ;Q-Network</strong></h3><blockquote>
+<p>注意：在当前状态$s$下， Q-Network 计算动作-价值$Q(s,a)$，同时Target-Network通过下一状态$s’$来计算TD-target里的$Q(s’,a’)$</p>
+</blockquote>
+<div align="center"><br><br><img src="https://i.loli.net/2018/11/27/5bfcec2e16758.png" alt="1_Vd1kcpLoQDnM5vrKnvzxbw.png"><br></div>
+
+<p>实验证明，同时使用两个不同神经网络来计算TD-target和$Q(s,a)$模型会有更好的稳定性。</p>
+<h3 id="Exploration-Exploitation"><a href="#Exploration-Exploitation" class="headerlink" title="Exploration/Exploitation"></a><strong>Exploration/Exploitation</strong></h3><p> 关于采取什么行动的决策涉及一个基本选择:</p>
 <ul>
-<li>Experience Replay</li>
-<li>Periodically Updated Target</li>
+<li>Exploration: 探索新的道路，获取更多的信息</li>
+<li><p>Exploitation: 基于现有信息做最好的决策。</p>
+<p>对于Exploitation来说，智能体基于行为策略$\mu$来选择最可能执行的动作。但是会导致一个问题，万一存在另一个动作可以导致一个更好的结果（长期来看）。现有的情况下，我们只会利用策略，而不做其他的探索。</p>
+</li>
 </ul>
+<p>$\epsilon$-Greedy通过允许智能体小概率的随机采取行动，这样算一种Exploration。通常$\epsilon$会随着训练过程而改变，比如下式:<br>$$<br>\epsilon = \frac{1}{\sqrt{n+1}}<br>$$<br>n是迭代的次数。$\epsilon$的变化说明我们是想在训练开始时，探索更多的可能结果，而在训练的后期，使策略变得更加稳定。</p>
+<h3 id="Experience-Replay"><a href="#Experience-Replay" class="headerlink" title="Experience Replay"></a><strong>Experience Replay</strong></h3><p>在过去，可以看出如果DQN模型应用了经验回放，会使得神经网络对TD-target和$Q(S,a)$的估计变得更加稳定。所有的episode steps $e_t = (S_t, A_t, R_t, S_{t+1})$ 被存储在回放记录$D_t = { e_1, \dots, e_t }$里，$D_t$有很多episodes的经验元组。在Q学习更新的时候，样本随机从回访记录里选取并一个样本可能多次使用。经验回放提升了数据的利用率，并且减轻了观测序列之间相关性带来的影响。而且使数据分布的变化更为平滑。</p>
+<h3 id="Periodically-Updated-Target"><a href="#Periodically-Updated-Target" class="headerlink" title="Periodically Updated Target"></a><strong>Periodically Updated Target</strong></h3><p>Q值对目标值定期进行优化，在每C(超参数)步中，作为一个优化目标Q-network被复制并且冻结。这种操作使训练可以克服短期振荡的影响，模型表现更加稳定。</p>
+<h2 id="Deep-Q-Learning-Pseudo-Algorithm"><a href="#Deep-Q-Learning-Pseudo-Algorithm" class="headerlink" title="Deep Q-Learning Pseudo Algorithm"></a>Deep Q-Learning Pseudo Algorithm</h2><div align="center">
+
+<p><img src="https://i.loli.net/2018/12/02/5c03df916b7b6.png" alt="DQN_algorithm.png"></p>
+<p></p></div><br>DQN存在很多的扩展形式，比如Dueling DQN; Double DQN; Rainbow<p></p>
 
       
     </div>
@@ -643,7 +662,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deep-Q-Learning"><span class="nav-number">1.</span> <span class="nav-text">Deep Q-Learning</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Action-Value-Function"><span class="nav-number">1.2.</span> <span class="nav-text">Action-Value Function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时序差分学习（Temporal-Difference-Learning）"><span class="nav-number">1.3.</span> <span class="nav-text">时序差分学习（Temporal Difference Learning）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bootstrapping"><span class="nav-number">1.3.1.</span> <span class="nav-text">Bootstrapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#值估计"><span class="nav-number">1.3.2.</span> <span class="nav-text">值估计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SARSA-On-Policy-TD-Control"><span class="nav-number">1.3.3.</span> <span class="nav-text">SARSA: On-Policy TD Control</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-Learning-Off-policy-TD-control"><span class="nav-number">1.3.4.</span> <span class="nav-text">Q-Learning: Off-policy TD control</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DQN-Deep-Q-Network"><span class="nav-number">1.4.</span> <span class="nav-text">DQN(Deep Q-Network)</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deep-Q-Learning"><span class="nav-number">1.</span> <span class="nav-text">Deep Q-Learning</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#简介"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Action-Value-Function"><span class="nav-number">1.2.</span> <span class="nav-text">Action-Value Function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#时序差分学习（Temporal-Difference-Learning）"><span class="nav-number">1.3.</span> <span class="nav-text">时序差分学习（Temporal Difference Learning）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bootstrapping"><span class="nav-number">1.3.1.</span> <span class="nav-text">Bootstrapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#值估计"><span class="nav-number">1.3.2.</span> <span class="nav-text">值估计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SARSA-On-Policy-TD-Control"><span class="nav-number">1.3.3.</span> <span class="nav-text">SARSA: On-Policy TD Control</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-Learning-Off-policy-TD-control"><span class="nav-number">1.3.4.</span> <span class="nav-text">Q-Learning: Off-policy TD control</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DQN-Deep-Q-Network"><span class="nav-number">1.4.</span> <span class="nav-text">DQN(Deep Q-Network)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Target-Networ-Q-Network"><span class="nav-number">1.4.1.</span> <span class="nav-text">Target-Networ;Q-Network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exploration-Exploitation"><span class="nav-number">1.4.2.</span> <span class="nav-text">Exploration/Exploitation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Experience-Replay"><span class="nav-number">1.4.3.</span> <span class="nav-text">Experience Replay</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Periodically-Updated-Target"><span class="nav-number">1.4.4.</span> <span class="nav-text">Periodically Updated Target</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deep-Q-Learning-Pseudo-Algorithm"><span class="nav-number">1.5.</span> <span class="nav-text">Deep Q-Learning Pseudo Algorithm</span></a></li></ol></li></ol></div>
             
 
           </div>
