@@ -92,7 +92,7 @@
 <meta property="og:image" content="https://i.loli.net/2018/11/26/5bfbbf76f27a5.png">
 <meta property="og:image" content="https://i.loli.net/2018/11/27/5bfcec2e16758.png">
 <meta property="og:image" content="https://i.loli.net/2018/12/02/5c03df916b7b6.png">
-<meta property="og:updated_time" content="2018-12-02T13:39:57.083Z">
+<meta property="og:updated_time" content="2019-06-20T07:51:05.324Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="强化学习-算法Deep Q-Learning">
 <meta name="twitter:description" content="从上一篇中，我们了解了强化学习的一些重要的基本概念： 马尔可夫决策过程，贝尔曼方程 等等。 为了理解Deep Q-Learning，需要先学习这些 基本概念。">
@@ -314,8 +314,8 @@
               
                 <span class="post-meta-item-text">更新于&#58;</span>
               
-              <time title="更新于" itemprop="dateModified" datetime="2018-12-02T21:39:57+08:00">
-                2018-12-02
+              <time title="更新于" itemprop="dateModified" datetime="2019-06-20T15:51:05+08:00">
+                2019-06-20
               </time>
             
           </span>
@@ -440,7 +440,9 @@
 <div align="center"><br><br><img src="https://i.loli.net/2018/11/26/5bfbbf76f27a5.png" alt="sarsa_vs_q_learning.png"><br></div>
 
 <h2 id="DQN-Deep-Q-Network"><a href="#DQN-Deep-Q-Network" class="headerlink" title="DQN(Deep Q-Network)"></a>DQN(Deep Q-Network)</h2><p>到了本节的重点DQN，理论上来说我们可以通过Q-Learning来最小化$Q_{*}(.)$来优化所有状态下的状态行为对，比如一个巨大的表，但是当状态行为空间太大的时候，计算就变得不可能。因此人们使用函数来估计Q值，这种方法叫做<strong>函数近似（function approximation）</strong>，比如我们使用$\theta$参数下的函数来计算Q值，我们可以吧Q值函数表示为$Q(s,a;\theta)$。同时当我们观察更新规则，当$Q(s, a)$于TD-target值相同时，更新就会停止。也就是说$Q(s, a)$此时收敛到了真值，我们的目标也就达到了。</p>
-<p>所以说目标：是为了最小化TD-target和$Q(s,a)$之间的差异，可由平方误差损失函数表示，求解最小化这个损失函数可以由梯度下降算法来解决。<br>$$<br>\mathcal{L}(\theta) = \mathbb{E}<em>{(s, a, r, s’) \sim U(D)} \Big[ \big( \underbrace{r + \gamma \max</em>{a’} Q(s’, a’; \theta^{-})}_{TD-target} - Q(s, a; \theta) \big)^2 \Big]<br>$$<br>其中$U(D)$表示经验回放里的均匀分布，$\theta^{-}$是frozen target Q-network 参数（后面再介绍）</p>
+<p>所以说目标：是为了最小化TD-target和$Q(s,a)$之间的差异，可由平方误差损失函数表示，求解最小化这个损失函数可以由梯度下降算法来解决。</p>
+<p>$$\mathcal{L}(\theta) = \mathbb{E}_ {(s, a, r, s’)\sim U(D)} \Big[ \big( \underbrace{r + \gamma \max_{a’} Q(s’, a’; \theta^{-})}_{TD-target} - Q(s, a; \theta) \big)^2 \Big]$$</p>
+<p>其中$U(D)$表示经验回放里的均匀分布，$\theta^{-}$是frozen target Q-network 参数（后面再介绍）</p>
 <p>但是，当Q-Learning 与非线性Q值函数近似和bootstrapping 结合后会使算法变得不稳定和发散（divergence)。</p>
 <p>Deep-Q-Network(“DQN”;Mnih et al. 2015)通过多种创新机制，极大地改善和稳定Q-learning的训练过程</p>
 <h3 id="Target-Networ-Q-Network"><a href="#Target-Networ-Q-Network" class="headerlink" title="Target-Networ;Q-Network"></a><strong>Target-Networ;Q-Network</strong></h3><blockquote>
