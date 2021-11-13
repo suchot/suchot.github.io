@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/suchot/suchot.github.io.git/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/suchot/suchot.github.io.git/images/favicon_1.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/suchot/suchot.github.io.git/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/suchot/suchot.github.io.git/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/suchot/suchot.github.io.git/css/main.css">
+
+
+<link rel="stylesheet" href="/suchot/suchot.github.io.git/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"github.com","root":"/suchot/suchot.github.io.git/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="从上一篇中，我们了解了强化学习的一些重要的基本概念： 马尔可夫决策过程，贝尔曼方程 等等。 为了理解Deep Q-Learning，需要先学习这些 基本概念。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强化学习-算法Deep Q-Learning">
+<meta property="og:url" content="https://github.com/suchot/suchot.github.io.git/2018/11/11/RL-algorithms/index.html">
+<meta property="og:site_name" content="VorTex">
+<meta property="og:description" content="从上一篇中，我们了解了强化学习的一些重要的基本概念： 马尔可夫决策过程，贝尔曼方程 等等。 为了理解Deep Q-Learning，需要先学习这些 基本概念。">
+<meta property="og:locale">
+<meta property="og:image" content="https://i.loli.net/2018/11/23/5bf77cd9a77e7.png">
+<meta property="og:image" content="https://i.loli.net/2018/11/23/5bf7b006adcb9.png">
+<meta property="og:image" content="https://i.loli.net/2018/11/26/5bfbbf76f27a5.png">
+<meta property="og:image" content="https://i.loli.net/2018/11/27/5bfcec2e16758.png">
+<meta property="og:image" content="https://i.loli.net/2018/12/02/5c03df916b7b6.png">
+<meta property="article:published_time" content="2018-11-11T13:16:38.000Z">
+<meta property="article:modified_time" content="2019-06-20T07:51:05.324Z">
+<meta property="article:author" content="such">
+<meta property="article:tag" content="RL">
+<meta property="article:tag" content="AL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2018/11/23/5bf77cd9a77e7.png">
+
+<link rel="canonical" href="https://github.com/suchot/suchot.github.io.git/2018/11/11/RL-algorithms/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>强化学习-算法Deep Q-Learning | VorTex</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/suchot/suchot.github.io.git/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">VorTex</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/suchot/suchot.github.io.git/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/suchot/suchot.github.io.git/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/suchot/suchot.github.io.git/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/suchot/suchot.github.io.git/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/suchot/suchot.github.io.git/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://github.com/suchot/suchot.github.io.git/2018/11/11/RL-algorithms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/suchot/suchot.github.io.git/images/avatar_1.jpg">
+      <meta itemprop="name" content="such">
+      <meta itemprop="description" content="These violent delights have violent ends">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VorTex">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          强化学习-算法Deep Q-Learning
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-11-11 21:16:38" itemprop="dateCreated datePublished" datetime="2018-11-11T21:16:38+08:00">2018-11-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-06-20 15:51:05" itemprop="dateModified" datetime="2019-06-20T15:51:05+08:00">2019-06-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/suchot/suchot.github.io.git/categories/%E7%A0%94%E7%A9%B6/" itemprop="url" rel="index"><span itemprop="name">研究</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>从上一篇中，我们了解了强化学习的一些重要的基本概念： <strong>马尔可夫决策过程</strong>，<strong>贝尔曼方程</strong> 等等。 为了理解Deep Q-Learning，需要先学习这些 <a target="_blank" rel="noopener" href="https://suchot.github.io/2018/10/30/RL/">基本概念</a>。 </p>
+<span id="more"></span>
+
+<h1 id="Deep-Q-Learning"><a href="#Deep-Q-Learning" class="headerlink" title="Deep Q-Learning"></a>Deep Q-Learning</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>强化学习可以分为 </p>
+<ol>
+<li>基于<strong>Value</strong>的强化学习</li>
+<li>基于<strong>Policy</strong>的强化学习 </li>
+<li>基于<strong>Model</strong>的强化学习</li>
+</ol>
+<p>DQN就是一个基于<strong>Value</strong>的强化学习的典型代表。该算法由Deepmind最先提出，后来发表在Nature上<a target="_blank" rel="noopener" href="https://storage.googleapis.com/deepmind-media/dqn/DQNNaturePaper.pdf">论文链接</a>。</p>
+<p>相比于Q-Learning， 应用神经网络来表示Q函数，可以解决Q-函数表太大，收敛太慢的问题。 例如DQN应用在Atari游戏中，输入是每4帧的Atari的游戏画面，通过网络后，输出为每个<strong>action</strong>的<strong>Q-Values</strong>值。<img src="https://i.loli.net/2018/11/23/5bf77cd9a77e7.png" alt="网络架构"></p>
+<h2 id="Action-Value-Function"><a href="#Action-Value-Function" class="headerlink" title="Action-Value Function"></a>Action-Value Function</h2><p>在前一篇里有动作价值函数$Q(s,a)$的具体介绍。简单来说，就是<strong>agent</strong>从状态$s$开始，采用动作$a$,并且遵循策略$\pi$，获得的预期回报。<br>$$<br>Q_{\pi}(s, a) = \mathbb{E} [R_{t+1} + \gamma Q_{\pi}(S_{t+1}, A_{t+1}) \vert S_t = s, A_t = a]<br>$$</p>
+<p>$Q(s,a)$ 表示了智能体在状态$s$下采用可能的动作$a$得到的<strong>quality</strong>。给定状态$s$ Action-Value函 该状态下每个可能动作$a_i$的标量值(quality/value)。更高的值表示当前智能体采取了更好的行动。</p>
+<p><img src="https://i.loli.net/2018/11/23/5bf7b006adcb9.png" alt="在某状态下，采取不同动作所得值"></p>
+<p>当引入状态转移矩阵后，我们可以得到上式的一个等价的新的动作价值函数:<br>$$<br>Q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a \sum_{a’ \in \mathcal{A}} \pi(a’ \vert s’) Q_{\pi} (s’, a’)<br>$$</p>
+<h2 id="时序差分学习（Temporal-Difference-Learning）"><a href="#时序差分学习（Temporal-Difference-Learning）" class="headerlink" title="时序差分学习（Temporal Difference Learning）"></a>时序差分学习（Temporal Difference Learning）</h2><p>与蒙特卡洛方法类似，时序差分学习也是免模型和从episodes经验中学习的方法，但是TD法可以从不完整的episodes中学习，我们无需将episode执行到$S_T$最终的状态。可以通过自身的Boostrapping猜测episode的结果，同时持续更新这个猜测。</p>
+<p>基于特定策略$\pi$ 的episode可以如前一篇所示为:<br>$$<br>S_1,A_1,R_2,S_2,A_2,\dots,S_T<br>$$</p>
+<p>完整的episode 指必须从某一个状态(不特指起始状态)开始，<strong>agent</strong>与<strong>environment</strong>交互直到$S_T$状态，环境给出终止状态的即时收获为止。</p>
+<h3 id="Bootstrapping"><a href="#Bootstrapping" class="headerlink" title="Bootstrapping"></a>Bootstrapping</h3><p>TD学习方法仅针对现有估计更新目标值，而不是像蒙特卡洛方法完全依赖episodes的实际奖励和完整回报。 这种方法称为bootstrapping。</p>
+<h3 id="值估计"><a href="#值估计" class="headerlink" title="值估计"></a>值估计</h3><p>在Monte-Carlo学习中，使用实际的回报(return)$G_{t}$来更新价值(Value):<br>$$<br>V(S_{t}) \leftarrow V(S_{t}) + \alpha (G_{t} - V(S_{t}))<br>$$<br>在TD Learning中最重要的一个概念是将价值函数$V(S_t)$的更新变为使用 离开该状态的即刻奖励 $R_{t+1}$ 与下一状态$S_{t+1}$的预估状态价值乘以衰减系数$\gamma$组成,即$R_{t+1} +\gamma V(S_{t+1})$ 被称为<strong>TD target</strong>。此外我们控制更新值函数程度可以用学习率$\alpha$这个参数。</p>
+<p>$$<br>\begin{aligned}<br>V(S_t) &amp;\leftarrow (1- \alpha) V(S_t) + \alpha G_t \\<br>V(S_t) &amp;\leftarrow V(S_t) + \alpha (G_t - V(S_t)) \\<br>V(S_t) &amp;\leftarrow V(S_t) + \alpha (R_{t+1} + \gamma V(S_{t+1}) - V(S_t))<br>\end{aligned}<br>$$</p>
+<p>式中：</p>
+<p>$R_{t+1} + \gamma V(S_{t+1})$ 被称为<strong>TD target</strong></p>
+<p>$\delta_{t} = R_{t+1} + \gamma V(S_{t+1}) - V(S_{t})$被称为<strong>TD error</strong></p>
+<p>对于动作-价值(action-value)估计来说，也有类似的：<br>$$<br>Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha (R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t))<br>$$</p>
+<p>那么如何通过TD learning(TD control)来学习最优策略？</p>
+<h3 id="SARSA-On-Policy-TD-Control"><a href="#SARSA-On-Policy-TD-Control" class="headerlink" title="SARSA: On-Policy TD Control"></a>SARSA: On-Policy TD Control</h3><p>SARSA(State–Action–Reward–State–Action)是TD差分法应用在$Q(s,a)$一个基本算法，并且SARSA可以称为<strong>on-policy</strong>算法。</p>
+<p>顺便解释很重要很容易混淆的概念，<strong>on-policy</strong>和<strong>off-policy</strong></p>
+<p>On-policy:使用目标策略中的确定性结果或样本来训练算法。</p>
+<p>Off-policy:通过转移概率分布或者由不是经目标策略生成的而是由不同行为策略的生成的episodes来训练算法。</p>
+<p>此外，从另一方面说，策略$\pi(a|s)$表示为状态$s$下到动作$a$的映射 on-policy算法表示使用相同的策略选择动作 来计算$Q(s_t, a_t)$ 和TD target中$Q(s_{t+1}, a_{t+1})$。即在同一时刻我们 <strong>使用(following)</strong> 并且 <strong>改善(improving)</strong> <strong>同一个(same)</strong> 策略。</p>
+<p>为了更好理解Off-policy 我们引入行为策略(behavior policy) $\mu(a|s)$,在所有时刻$t$的$Q(s_t, a_t)$中动作$a_t \sim \mu(a|s)$。在On-policy中，行为策略会是遵循的政并同时进行优化的策略。在 off-policy中有两个不同的策略$\mu(a|s)$行为策略$\pi(a|s)$和目标策略（target policy) 行为策略用来计算$Q(s_t, a_t)$ 目标策略用来计算TD target中的$Q(s_t, a_t)$。</p>
+<p>接着 回到SARSA算法。 SARSA指的是通过遵循序列$\dots, S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1}, \dots$来更新Q值的过程。这个想法和Generalized Policy Iteration(GPI)相同。</p>
+<ol>
+<li>在时刻$t$, 从状态$S_t$开始，根据此时$Q$值选择一个动作$A_t = \arg\max_{a \in \mathcal{A}} Q(S_t, a)$。 选择策略通常是用$\varepsilon-greedy$策略。</li>
+<li>当得到$A_t$后，我们可以得到即时回报$R_{t+1}$和下一状态$S_{t+1}$</li>
+<li>接下来和步骤1一样选择$S_{t+1}$状态的动作：$A_{t+1} = \arg\max_{a \in \mathcal{A}} Q(S_{t+1}, a)$</li>
+<li>根据之前的公式更新行为价值函数(action-value function): $Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha (R_{t+1} + \gamma Q(S_{t+1}, A_{t+1}) - Q(S_t, A_t))$</li>
+<li>$t=t+1$，并跳回步骤1.</li>
+</ol>
+<p>On-policy:在SARSA的每一次更新时，我们在步骤一和三选择动作都依当前相同策略。</p>
+<h3 id="Q-Learning-Off-policy-TD-control"><a href="#Q-Learning-Off-policy-TD-control" class="headerlink" title="Q-Learning: Off-policy TD control"></a>Q-Learning: Off-policy TD control</h3><p>Q-Learning<a target="_blank" rel="noopener" href="https://link.springer.com/content/pdf/10.1007/BF00992698.pdf">[Watkins &amp; Dayan, 1992]</a>的发展可以说是强化学习早期的一个突破进展。</p>
+<ol>
+<li>在时刻$t$, 从状态$S_t$开始，根据此时$Q$值选择一个动作$A_t = \arg\max_{a \in \mathcal{A}} Q(S_t, a)$。 选择策略通常是用$\varepsilon-greedy$策略。</li>
+<li>当得到$A_t$后，我们可以得到即时回报$R_{t+1}$和下一状态$S_{t+1}$</li>
+<li>更新行为价值函数(action-value function): $Q(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha (R_{t+1} + \gamma \max_{a’ \in \mathcal{A}} Q(S_{t+1}, a’) - Q(S_t, A_t))$</li>
+<li>$t=t+1$，并跳回步骤1.</li>
+</ol>
+<p>注意: 前两步和SARSA算法相同，在步骤3中Q-Learning并没有根据当前的策略选择第二次的动作，而是独立于当前策略从最佳$Q$值中估计$Q_{*}$。</p>
+<div align = center>
+
+<p><img src="https://i.loli.net/2018/11/26/5bfbbf76f27a5.png" alt="sarsa_vs_q_learning.png"></p>
+</div>
+
+<h2 id="DQN-Deep-Q-Network"><a href="#DQN-Deep-Q-Network" class="headerlink" title="DQN(Deep Q-Network)"></a>DQN(Deep Q-Network)</h2><p>到了本节的重点DQN，理论上来说我们可以通过Q-Learning来最小化$Q_{*}(.)$来优化所有状态下的状态行为对，比如一个巨大的表，但是当状态行为空间太大的时候，计算就变得不可能。因此人们使用函数来估计Q值，这种方法叫做<strong>函数近似（function approximation）</strong>，比如我们使用$\theta$参数下的函数来计算Q值，我们可以吧Q值函数表示为$Q(s,a;\theta)$。同时当我们观察更新规则，当$Q(s, a)$于TD-target值相同时，更新就会停止。也就是说$Q(s, a)$此时收敛到了真值，我们的目标也就达到了。</p>
+<p>所以说目标：是为了最小化TD-target和$Q(s,a)$之间的差异，可由平方误差损失函数表示，求解最小化这个损失函数可以由梯度下降算法来解决。</p>
+<p>$$\mathcal{L}(\theta) = \mathbb{E}_ {(s, a, r, s’)\sim U(D)} \Big[ \big( \underbrace{r + \gamma \max_{a’} Q(s’, a’; \theta^{-})}_{TD-target} - Q(s, a; \theta) \big)^2 \Big]$$</p>
+<p>其中$U(D)$表示经验回放里的均匀分布，$\theta^{-}$是frozen target Q-network 参数（后面再介绍）</p>
+<p>但是，当Q-Learning 与非线性Q值函数近似和bootstrapping 结合后会使算法变得不稳定和发散（divergence)。</p>
+<p>Deep-Q-Network(“DQN”;Mnih et al. 2015)通过多种创新机制，极大地改善和稳定Q-learning的训练过程</p>
+<h3 id="Target-Networ-Q-Network"><a href="#Target-Networ-Q-Network" class="headerlink" title="Target-Networ;Q-Network"></a><strong>Target-Networ;Q-Network</strong></h3><blockquote>
+<p>注意：在当前状态$s$下， Q-Network 计算动作-价值$Q(s,a)$，同时Target-Network通过下一状态$s’$来计算TD-target里的$Q(s’,a’)$</p>
+</blockquote>
+<div align =center>
+
+<p><img src="https://i.loli.net/2018/11/27/5bfcec2e16758.png" alt="1_Vd1kcpLoQDnM5vrKnvzxbw.png"></p>
+</div>
+
+<p>实验证明，同时使用两个不同神经网络来计算TD-target和$Q(s,a)$模型会有更好的稳定性。</p>
+<h3 id="Exploration-Exploitation"><a href="#Exploration-Exploitation" class="headerlink" title="Exploration/Exploitation"></a><strong>Exploration/Exploitation</strong></h3><p> 关于采取什么行动的决策涉及一个基本选择:</p>
+<ul>
+<li>Exploration: 探索新的道路，获取更多的信息</li>
+<li>Exploitation: 基于现有信息做最好的决策。</li>
+</ul>
+<p>  对于Exploitation来说，智能体基于行为策略$\mu$来选择最可能执行的动作。但是会导致一个问题，万一存在另一个动作可以导致一个更好的结果（长期来看）。现有的情况下，我们只会利用策略，而不做其他的探索。</p>
+<p>$\epsilon$-Greedy通过允许智能体小概率的随机采取行动，这样算一种Exploration。通常$\epsilon$会随着训练过程而改变，比如下式:<br>$$<br>\epsilon = \frac{1}{\sqrt{n+1}}<br>$$<br>n是迭代的次数。$\epsilon$的变化说明我们是想在训练开始时，探索更多的可能结果，而在训练的后期，使策略变得更加稳定。</p>
+<h3 id="Experience-Replay"><a href="#Experience-Replay" class="headerlink" title="Experience Replay"></a><strong>Experience Replay</strong></h3><p>在过去，可以看出如果DQN模型应用了经验回放，会使得神经网络对TD-target和$Q(S,a)$的估计变得更加稳定。所有的episode steps $e_t = (S_t, A_t, R_t, S_{t+1})$ 被存储在回放记录$D_t = { e_1, \dots, e_t }$里，$D_t$有很多episodes的经验元组。在Q学习更新的时候，样本随机从回访记录里选取并一个样本可能多次使用。经验回放提升了数据的利用率，并且减轻了观测序列之间相关性带来的影响。而且使数据分布的变化更为平滑。</p>
+<h3 id="Periodically-Updated-Target"><a href="#Periodically-Updated-Target" class="headerlink" title="Periodically Updated Target"></a><strong>Periodically Updated Target</strong></h3><p>Q值对目标值定期进行优化，在每C(超参数)步中，作为一个优化目标Q-network被复制并且冻结。这种操作使训练可以克服短期振荡的影响，模型表现更加稳定。</p>
+<h2 id="Deep-Q-Learning-Pseudo-Algorithm"><a href="#Deep-Q-Learning-Pseudo-Algorithm" class="headerlink" title="Deep Q-Learning Pseudo Algorithm"></a>Deep Q-Learning Pseudo Algorithm</h2><div align=center>
+
+<p><img src="https://i.loli.net/2018/12/02/5c03df916b7b6.png" alt="DQN_algorithm.png"></p>
+</div> 
+DQN存在很多的扩展形式，比如Dueling DQN; Double DQN; Rainbow
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/suchot/suchot.github.io.git/tags/RL/" rel="tag"># RL</a>
+              <a href="/suchot/suchot.github.io.git/tags/AL/" rel="tag"># AL</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/suchot/suchot.github.io.git/2018/10/30/RL/" rel="prev" title="强化学习--学习基础">
+      <i class="fa fa-chevron-left"></i> 强化学习--学习基础
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/suchot/suchot.github.io.git/2019/05/22/Tree/" rel="next" title="决策树模型">
+      决策树模型 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Deep-Q-Learning"><span class="nav-number">1.</span> <span class="nav-text">Deep Q-Learning</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Action-Value-Function"><span class="nav-number">1.2.</span> <span class="nav-text">Action-Value Function</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E5%B7%AE%E5%88%86%E5%AD%A6%E4%B9%A0%EF%BC%88Temporal-Difference-Learning%EF%BC%89"><span class="nav-number">1.3.</span> <span class="nav-text">时序差分学习（Temporal Difference Learning）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bootstrapping"><span class="nav-number">1.3.1.</span> <span class="nav-text">Bootstrapping</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%80%BC%E4%BC%B0%E8%AE%A1"><span class="nav-number">1.3.2.</span> <span class="nav-text">值估计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SARSA-On-Policy-TD-Control"><span class="nav-number">1.3.3.</span> <span class="nav-text">SARSA: On-Policy TD Control</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Q-Learning-Off-policy-TD-control"><span class="nav-number">1.3.4.</span> <span class="nav-text">Q-Learning: Off-policy TD control</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DQN-Deep-Q-Network"><span class="nav-number">1.4.</span> <span class="nav-text">DQN(Deep Q-Network)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Target-Networ-Q-Network"><span class="nav-number">1.4.1.</span> <span class="nav-text">Target-Networ;Q-Network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Exploration-Exploitation"><span class="nav-number">1.4.2.</span> <span class="nav-text">Exploration&#x2F;Exploitation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Experience-Replay"><span class="nav-number">1.4.3.</span> <span class="nav-text">Experience Replay</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Periodically-Updated-Target"><span class="nav-number">1.4.4.</span> <span class="nav-text">Periodically Updated Target</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deep-Q-Learning-Pseudo-Algorithm"><span class="nav-number">1.5.</span> <span class="nav-text">Deep Q-Learning Pseudo Algorithm</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="such"
+      src="/suchot/suchot.github.io.git/images/avatar_1.jpg">
+  <p class="site-author-name" itemprop="name">such</p>
+  <div class="site-description" itemprop="description">These violent delights have violent ends</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/suchot/suchot.github.io.git/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/suchot/suchot.github.io.git/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/suchot/suchot.github.io.git/tags/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">such</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/suchot/suchot.github.io.git/lib/anime.min.js"></script>
+  <script src="/suchot/suchot.github.io.git/lib/velocity/velocity.min.js"></script>
+  <script src="/suchot/suchot.github.io.git/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/suchot/suchot.github.io.git/js/utils.js"></script>
+
+<script src="/suchot/suchot.github.io.git/js/motion.js"></script>
+
+
+<script src="/suchot/suchot.github.io.git/js/schemes/muse.js"></script>
+
+
+<script src="/suchot/suchot.github.io.git/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '4c3c296aa618af2f3f22',
+      clientSecret: '7c0354a7bf0302fdea06afd254c383d8f91bbb56',
+      repo        : 'suchot.github.io',
+      owner       : 'suchot',
+      admin       : ['suchot'],
+      id          : 'c4b835594563eb9312546be482d5d760',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
