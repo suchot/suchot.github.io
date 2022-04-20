@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="generator" content="Hexo 5.4.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_1.ico">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -231,103 +231,167 @@
       
         <p>强化学习是最近很火的一个研究方向，并且在多个领域取得成功，比如AlphaGo 和Dota2的AI选手，星际争霸2最近也取得了很多的突破。学习的一点心得体会记录下来。</p>
 <span id="more"></span>
-<h1 id="深度强化学习基本概念"><a href="#深度强化学习基本概念" class="headerlink" title="深度强化学习基本概念"></a>深度强化学习基本概念</h1><center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3d40092080.png" alt="RL基本框架"></p>
+<h1 id="深度强化学习基本概念">深度强化学习基本概念</h1>
+<center>
+<img src="https://i.loli.net/2018/11/08/5be3d40092080.png" title="fig:" alt="RL基本框架" />
 </center>
-
 <p><strong>Agent</strong> 在与<strong>Environment</strong>中根据目前所处的<strong>State</strong>决定采用哪些<strong>Action</strong>，基于采取的行动，<strong>Agent</strong>收到相对应<strong>Reward</strong>，我们的目标是学习在任何特定的<strong>状态</strong>下采取<strong>行动</strong>，以最大化积累<strong>奖励</strong>。</p>
-<p>我们把在t时刻的state, action, reward表示为$S_t,A_t,R_t$ 所以整个交互过程可以表示为<br>$$<br>S_1,A_1,R_2,S_2,A_2,\dots,S_T<br>$$</p>
-<h1 id="马尔科夫决策过程"><a href="#马尔科夫决策过程" class="headerlink" title="马尔科夫决策过程"></a>马尔科夫决策过程</h1><p>马尔可夫过程是描述一系列可能状态的随机模型</p>
+<p>我们把在t时刻的state, action, reward表示为<span class="math inline">\(S_t,A_t,R_t\)</span> 所以整个交互过程可以表示为 <span class="math display">\[
+S_1,A_1,R_2,S_2,A_2,\dots,S_T
+\]</span> # 马尔科夫决策过程</p>
+<p>马尔可夫过程是描述一系列可能状态的随机模型</p>
 <p>更正式的说，几乎所有的RL问题都可以定义为马尔科夫决策过程，这是学习RL绕不开的一个概念。</p>
-<p>在马尔科夫决策过程中所有的状态（states）可以被认为其具有马尔可夫性质（ “Markov” property）即：未来状态仅依赖于当前状态<br>$$<br>\mathbb{P}[ S_{t+1} \vert S_t ] = \mathbb{P} [S_{t+1} \vert S_1, \dots, S_t]<br> \tag{Eq.1}<br>$$</p>
-<h2 id="马尔可夫过程"><a href="#马尔可夫过程" class="headerlink" title="马尔可夫过程"></a>马尔可夫过程</h2><p>马尔可夫过程是一个随机过程，也就是从当前状态$s$是以一定概率到$P_{ss^{‘}}$到下个状态$s^{‘}$。例如我们在一个马尔可夫过程中，告诉智能体向左转，但是我们智能体在环境可能会遇到某些特殊情况，导致我们只会有0.998的概率确实向左转。剩下的0.002的概率是由环境决定下一个状态。</p>
-<p>$P_{ss^{‘}}$可以被认为是状态转移矩阵$P$中的一个值，定义为从所以状态s到所有后继状态$s^{‘}$的转移概率<br>$$<br>\mathbf{P} =<br>from \stackrel{\mathit{to}}{\left[<br>    \begin{array}{ccc}<br>    P_{11} &amp; \ldots&amp;  P_{1n}\\<br>    \vdots &amp; \ddots &amp; \vdots\\<br>    P_{n1} &amp; \ldots &amp; P_{nn}<br>    \end{array}<br>     \right]}<br>$$<br>式中n为状态数量， 矩阵中每一行的元素和为1<br>马尔可夫过程 又称为马尔可夫链，它是一个无记忆的随机过程，可以用元组$&lt;S,P&gt;$表示，其中$S$是有限数量的状态集，$P$是状态转移概率矩阵。</p>
-<h2 id="马尔可夫奖励过程"><a href="#马尔可夫奖励过程" class="headerlink" title="马尔可夫奖励过程"></a>马尔可夫奖励过程</h2><p>马尔可夫奖励过程也是元组，在马尔可夫过程基础上增加了奖励$R$和衰减系数$\gamma\in(0,1)$ ,元组可以表示为$&lt;S,P,R,\gamma&gt;$ $R$是奖励函数。$S$状态下的奖励是某一时刻$t$处在状态$s$下，在下一个时刻$t+1$时能获得奖励期望：<br>$$<br>R_s = \mathbb{E} [R_{t+1} \vert S_t = s]<br>$$</p>
-<p>衰减系数$\gamma$的引入的原因 1. 有数学表达式的简便，避免了无限循环。 2. 现实生活中远期利益具有不确定性。引入衰减系数更加符合人们的常识。</p>
-<p>我们感兴趣的主要是最大化积累奖励$G_t$，他是智能体(agent)在一个马尔科夫奖励链上从t时刻开始往后所有的奖励的有衰减的总和。其中衰减系数体现了未来的奖励在当前时刻的价值比例。$\gamma  \rightarrow0$表明趋向于“短视”性收益；$\gamma \rightarrow 1$则表明偏重考虑长远的收益。<br>$$<br>G_t = R_{t+1} + \gamma R_{t+2} + \dots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}<br>$$</p>
-<h2 id="价值函数Value-Function"><a href="#价值函数Value-Function" class="headerlink" title="价值函数Value Function"></a>价值函数Value Function</h2><p>价值函数给出了某一状态或某一行为的长期价值。</p>
-<p>价值函数$v(s)$,定义：一个马尔科夫奖励过程中某一状态的价值函数为从该状态开始的马尔可夫链收获的期望：<br>$$v(s) = \mathbb{E}[G_t \vert S_t = s]<br>$$</p>
+<p>在马尔科夫决策过程中所有的状态（states）可以被认为其具有马尔可夫性质（ “Markov” property）即：未来状态仅依赖于当前状态 <span class="math display">\[
+\mathbb{P}[ S_{t+1} \vert S_t ] = \mathbb{P} [S_{t+1} \vert S_1, \dots, S_t]
+ \tag{Eq.1}
+\]</span></p>
+<h2 id="马尔可夫过程">马尔可夫过程</h2>
+<p>马尔可夫过程是一个随机过程，也就是从当前状态<span class="math inline">\(s\)</span>是以一定概率到<span class="math inline">\(P_{ss^{&#39;}}\)</span>到下个状态<span class="math inline">\(s^{&#39;}\)</span>。例如我们在一个马尔可夫过程中，告诉智能体向左转，但是我们智能体在环境可能会遇到某些特殊情况，导致我们只会有0.998的概率确实向左转。剩下的0.002的概率是由环境决定下一个状态。</p>
+<p><span class="math inline">\(P_{ss^{&#39;}}\)</span>可以被认为是状态转移矩阵<span class="math inline">\(P\)</span>中的一个值，定义为从所以状态s到所有后继状态<span class="math inline">\(s^{&#39;}\)</span>的转移概率 <span class="math display">\[
+\mathbf{P} =
+from \stackrel{\mathit{to}}{\left[
+    \begin{array}{ccc}
+    P_{11} &amp; \ldots&amp;  P_{1n}\\\\
+    \vdots &amp; \ddots &amp; \vdots\\\\
+    P_{n1} &amp; \ldots &amp; P_{nn}
+    \end{array}
+     \right]}
+\]</span> 式中n为状态数量， 矩阵中每一行的元素和为1 马尔可夫过程 又称为马尔可夫链，它是一个无记忆的随机过程，可以用元组<span class="math inline">\(&lt;S,P&gt;\)</span>表示，其中<span class="math inline">\(S\)</span>是有限数量的状态集，<span class="math inline">\(P\)</span>是状态转移概率矩阵。</p>
+<h2 id="马尔可夫奖励过程">马尔可夫奖励过程</h2>
+<p>马尔可夫奖励过程也是元组，在马尔可夫过程基础上增加了奖励<span class="math inline">\(R\)</span>和衰减系数<span class="math inline">\(\gamma\in(0,1)\)</span> ,元组可以表示为<span class="math inline">\(&lt;S,P,R,\gamma&gt;\)</span> <span class="math inline">\(R\)</span>是奖励函数。<span class="math inline">\(S\)</span>状态下的奖励是某一时刻<span class="math inline">\(t\)</span>处在状态<span class="math inline">\(s\)</span>下，在下一个时刻<span class="math inline">\(t+1\)</span>时能获得奖励期望： <span class="math display">\[
+R_s = \mathbb{E} [R_{t+1} \vert S_t = s]
+\]</span></p>
+<p>衰减系数<span class="math inline">\(\gamma\)</span>的引入的原因 1. 有数学表达式的简便，避免了无限循环。 2. 现实生活中远期利益具有不确定性。引入衰减系数更加符合人们的常识。</p>
+<p>我们感兴趣的主要是最大化积累奖励<span class="math inline">\(G_t\)</span>，他是智能体(agent)在一个马尔科夫奖励链上从t时刻开始往后所有的奖励的有衰减的总和。其中衰减系数体现了未来的奖励在当前时刻的价值比例。<span class="math inline">\(\gamma \rightarrow0\)</span>表明趋向于“短视”性收益；<span class="math inline">\(\gamma \rightarrow 1\)</span>则表明偏重考虑长远的收益。 <span class="math display">\[
+G_t = R_{t+1} + \gamma R_{t+2} + \dots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
+\]</span></p>
+<h2 id="价值函数value-function">价值函数Value Function</h2>
+<p>价值函数给出了某一状态或某一行为的长期价值。</p>
+<p>价值函数<span class="math inline">\(v(s)\)</span>,定义：一个马尔科夫奖励过程中某一状态的价值函数为从该状态开始的马尔可夫链收获的期望： <span class="math display">\[v(s) = \mathbb{E}[G_t \vert S_t = s]
+\]</span></p>
 <p>利用价值函数定义公式可以推导出<strong>贝尔曼方程（Bellman equation)</strong></p>
-<p>$$<br>\begin{aligned}<br>v(s) &amp;= \mathbb{E}[G_t \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma (R_{t+2} + \gamma R_{t+3} + \dots) \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma G_{t+1} \vert S_t = s] \\<br>&amp;= \mathbb{E} [R_{t+1} + \gamma v(S_{t+1}) \vert S_t = s]<br>\end{aligned}<br>$$<br>推导比较简单，只是在最后$G_{t+1}$变成了$v(S_{t+1})$ 理由是收获的期望等于收获期望的期望。可以看得 价值函数可由两部分组成，一是该状态的即时奖励期望，即时奖励期望等于即时奖励，因为根据即时奖励的定义，它与下一个状态无关；另一个是下一时刻状态的价值期望，可以根据下一时刻状态的概率分布得到其期望。</p>
-<h1 id="Bellman-方程"><a href="#Bellman-方程" class="headerlink" title="Bellman 方程"></a>Bellman 方程</h1><h2 id="马尔可夫奖励过程的Bellman方程"><a href="#马尔可夫奖励过程的Bellman方程" class="headerlink" title="马尔可夫奖励过程的Bellman方程"></a>马尔可夫奖励过程的Bellman方程</h2><p>$$<br>v(s)= \mathbb{E} [R_{t+1} + \gamma v(S_{t+1}) \vert S_t = s]<br>$$<br>该函数被称为马尔可夫奖励过程的Bellman方程，也可以由如下节点展示</p>
+<p><span class="math display">\[
+\begin{aligned}
+v(s) &amp;= \mathbb{E}[G_t \vert S_t = s] \\\\
+&amp;= \mathbb{E} [R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots \vert S_t = s] \\\\
+&amp;= \mathbb{E} [R_{t+1} + \gamma (R_{t+2} + \gamma R_{t+3} + \dots) \vert S_t = s] \\\\
+&amp;= \mathbb{E} [R_{t+1} + \gamma G_{t+1} \vert S_t = s] \\\\
+&amp;= \mathbb{E} [R_{t+1} + \gamma v(S_{t+1}) \vert S_t = s]
+\end{aligned} 
+\]</span> 推导比较简单，只是在最后<span class="math inline">\(G_{t+1}\)</span>变成了<span class="math inline">\(v(S_{t+1})\)</span> 理由是收获的期望等于收获期望的期望。可以看得 价值函数可由两部分组成，一是该状态的即时奖励期望，即时奖励期望等于即时奖励，因为根据即时奖励的定义，它与下一个状态无关；另一个是下一时刻状态的价值期望，可以根据下一时刻状态的概率分布得到其期望。</p>
+<h1 id="bellman-方程">Bellman 方程</h1>
+<h2 id="马尔可夫奖励过程的bellman方程">马尔可夫奖励过程的Bellman方程</h2>
+<p><span class="math display">\[
+v(s)= \mathbb{E} [R_{t+1} + \gamma v(S_{t+1}) \vert S_t = s]
+\]</span> 该函数被称为马尔可夫奖励过程的Bellman方程，也可以由如下节点展示</p>
 <center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3f752100f2.png" alt="RL2.png"></p>
+<img src="https://i.loli.net/2018/11/08/5be3f752100f2.png" title="fig:" alt="RL2.png" />
 </center>
-
-<p>为了计算出$s$状态下的价值函数$v(s)$。需要对所有以概率$P_{ss^{‘}}$被转移到$s^{‘}$状态下的价值函数值求和，再加上到当前状态的即时回报$R_s$,可以写成：<br>$$<br>v(s) = R_s + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’} v(s’)<br>$$</p>
-<h3 id="Bellman方程的矩阵形式和求解"><a href="#Bellman方程的矩阵形式和求解" class="headerlink" title="Bellman方程的矩阵形式和求解"></a>Bellman方程的矩阵形式和求解</h3><p>$$<br>v = R +\gamma P v<br>$$</p>
-<p>矩阵的具体表达形式:</p>
+<p>为了计算出<span class="math inline">\(s\)</span>状态下的价值函数<span class="math inline">\(v(s)\)</span>。需要对所有以概率<span class="math inline">\(P_{ss^{&#39;}}\)</span>被转移到<span class="math inline">\(s^{&#39;}\)</span>状态下的价值函数值求和，再加上到当前状态的即时回报<span class="math inline">\(R_s\)</span>,可以写成： <span class="math display">\[
+v(s) = R_s + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;} v(s&#39;)
+\]</span> ### Bellman方程的矩阵形式和求解</p>
+<p><span class="math display">\[
+v = R +\gamma P v
+\]</span></p>
+矩阵的具体表达形式:
 <center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3d4e3683cd.png"></p>
+<img src="https://i.loli.net/2018/11/08/5be3d4e3683cd.png" />
 </center>
-
-<p>Bellman方程是一个线性方程组，因此理论上解可以直接求解：</p>
+Bellman方程是一个线性方程组，因此理论上解可以直接求解：
 <center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3d4e3666c5.png"></p>
+<img src="https://i.loli.net/2018/11/08/5be3d4e3666c5.png" />
 </center>
-
-<p>实际上，计算复杂度是 $O(n^{3})$， n 是状态数量。因此直接求解仅适用于小规模的MRPs。大规模MRP的求解通常使用迭代法。常用的迭代方法有：动态规划Dynamic Programming、蒙特卡洛评估Monte-Carlo evaluation、时序差分学习Temporal-Difference。</p>
-<h2 id="马尔可夫决策过程-Markov-Decision-Process"><a href="#马尔可夫决策过程-Markov-Decision-Process" class="headerlink" title="马尔可夫决策过程(Markov Decision Process)"></a>马尔可夫决策过程(Markov Decision Process)</h2><p>相较于马尔科夫奖励过程，马尔科夫决策过程多了一个动作集合$A$，为当前状态下可以采取的动作，可以表示成这样的一个元组$&lt;S,A,P,R,\gamma&gt;$。此时从状态$s$的直接回报还依赖于在当前状态下选取的动作$a$，表示为：<br>$$<br>R(s, a) = \mathbb{E} [R_{t+1} \vert S_t = s, A_t = a]<br>$$</p>
-<h2 id="策略-Policy"><a href="#策略-Policy" class="headerlink" title="策略(Policy)"></a>策略(Policy)</h2><p>此时我们将讨论主体如何决定在特定状态下必须采取哪些动作。 这由策略来$\pi$表示，从数学上来说策略$\pi$是给定状态下可采取的动作的概率分布。</p>
-<p>对于过程中某一状态$s$采取可能行为$a$的概率分布由：</p>
-<ul>
-<li>Deterministic      $\pi(s) = a$</li>
-<li>Stochastic         $\pi(a \vert s) = \mathbb{P}_\pi [A=a \vert S=s]$</li>
-</ul>
-<p>现在有了策略函数，我们可以得到基于策略$\pi$的状态价值函数为：表示从状态$s$开始，遵循当前策略$\pi$时所获得的收获的期望</p>
-<p>$$<br>v_{\pi}(s) = \mathbb{E}_{\pi}[G_t \vert S_t = s]<br>$$</p>
-<h2 id="动作-价值函数（Action-Value-Function"><a href="#动作-价值函数（Action-Value-Function" class="headerlink" title="动作-价值函数（Action-Value Function)"></a>动作-价值函数（Action-Value Function)</h2><p>除了状态价值函数，还有一个重要的概念为动作价值函数$q_{\pi}(s,a)$表示在执行策略$\pi$时，对当前状态$s$执行某一具体动作$a$所能的到的收获的期望；或者说在遵循当前策略$\pi$时，衡量对当前状态执行动作$a$的价值大小。<br>$$<br>q_{\pi}(s, a) = \mathbb{E}_{\pi}[G_t \vert S_t = s, A_t = a]<br>$$</p>
-<p>和前文介绍的状态-价值函数$V_{\pi}(s)$类似，动作-价值函数$q_{\pi}(s,a)$一样可以被拆分为以下形式：<br>$$<br>q_{\pi}(s, a) = \mathbb{E} [R_{t+1} + \gamma q_{\pi}(S_{t+1}, A_{t+1}) \vert S_t = s, A_t = a]<br>$$</p>
-<h3 id="v-pi-s-和-q-pi-s-a-的关系"><a href="#v-pi-s-和-q-pi-s-a-的关系" class="headerlink" title="$v_{\pi}(s)$和$q_{\pi}(s,a)$的关系"></a>$v_{\pi}(s)$和$q_{\pi}(s,a)$的关系</h3><p>从图中我们可以看出来</p>
-<div align = center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3d400916be.png" alt="示意图"></p>
+<p>实际上，计算复杂度是 <span class="math inline">\(O(n^{3})\)</span>， n 是状态数量。因此直接求解仅适用于小规模的MRPs。大规模MRP的求解通常使用迭代法。常用的迭代方法有：动态规划Dynamic Programming、蒙特卡洛评估Monte-Carlo evaluation、时序差分学习Temporal-Difference。</p>
+<h2 id="马尔可夫决策过程markov-decision-process">马尔可夫决策过程(Markov Decision Process)</h2>
+<p>相较于马尔科夫奖励过程，马尔科夫决策过程多了一个动作集合<span class="math inline">\(A\)</span>，为当前状态下可以采取的动作，可以表示成这样的一个元组<span class="math inline">\(&lt;S,A,P,R,\gamma&gt;\)</span>。此时从状态<span class="math inline">\(s\)</span>的直接回报还依赖于在当前状态下选取的动作<span class="math inline">\(a\)</span>，表示为： <span class="math display">\[
+R(s, a) = \mathbb{E} [R_{t+1} \vert S_t = s, A_t = a]
+\]</span></p>
+<h2 id="策略policy">策略(Policy)</h2>
+<p>此时我们将讨论主体如何决定在特定状态下必须采取哪些动作。 这由策略来<span class="math inline">\(\pi\)</span>表示，从数学上来说策略<span class="math inline">\(\pi\)</span>是给定状态下可采取的动作的概率分布。</p>
+<p>对于过程中某一状态<span class="math inline">\(s\)</span>采取可能行为<span class="math inline">\(a\)</span>的概率分布由： * Deterministic <span class="math inline">\(\pi(s) = a\)</span> * Stochastic <span class="math inline">\(\pi(a \vert s) = \mathbb{P}_\pi [A=a \vert S=s]\)</span></p>
+<p>现在有了策略函数，我们可以得到基于策略<span class="math inline">\(\pi\)</span>的状态价值函数为：表示从状态<span class="math inline">\(s\)</span>开始，遵循当前策略<span class="math inline">\(\pi\)</span>时所获得的收获的期望</p>
+<p><span class="math display">\[
+v_{\pi}(s) = \mathbb{E}_{\pi}[G_t \vert S_t = s]
+\]</span></p>
+<h2 id="动作-价值函数action-value-function">动作-价值函数（Action-Value Function)</h2>
+<p>除了状态价值函数，还有一个重要的概念为动作价值函数<span class="math inline">\(q_{\pi}(s,a)\)</span>表示在执行策略<span class="math inline">\(\pi\)</span>时，对当前状态<span class="math inline">\(s\)</span>执行某一具体动作<span class="math inline">\(a\)</span>所能的到的收获的期望；或者说在遵循当前策略<span class="math inline">\(\pi\)</span>时，衡量对当前状态执行动作<span class="math inline">\(a\)</span>的价值大小。 <span class="math display">\[
+q_{\pi}(s, a) = \mathbb{E}_{\pi}[G_t \vert S_t = s, A_t = a]
+\]</span></p>
+<p>和前文介绍的状态-价值函数<span class="math inline">\(V_{\pi}(s)\)</span>类似，动作-价值函数<span class="math inline">\(q_{\pi}(s,a)\)</span>一样可以被拆分为以下形式： <span class="math display">\[
+q_{\pi}(s, a) = \mathbb{E} [R_{t+1} + \gamma q_{\pi}(S_{t+1}, A_{t+1}) \vert S_t = s, A_t = a]
+\]</span></p>
+<h3 id="v_pis和q_pisa的关系"><span class="math inline">\(v_{\pi}(s)\)</span>和<span class="math inline">\(q_{\pi}(s,a)\)</span>的关系</h3>
+从图中我们可以看出来
+<div data-align="center">
+<figure>
+<img src="https://i.loli.net/2018/11/08/5be3d400916be.png" alt="示意图" /><figcaption aria-hidden="true">示意图</figcaption>
+</figure>
 </div>
-
-<p>空心较大圆圈表示状态，黑色实心小圆表示的是动作本身，连接状态和动作的线条仅仅把该状态以及该状态下可以采取的行为关联起来。可以看出，在遵循策略$\pi$时，状态$s$的价值体现为在该状态下遵循某一策略而采取所有可能行为的价值按行为发生概率的乘积求和。<br>$$<br>v_{\pi}(s)= \sum_{a \in \mathcal{A}} \pi(a \vert s) q_{\pi}(s, a)<br>$$</p>
-<p>让我们考虑上图中的相反情况。根现在是一个我们选择采取特定动作的状态。由于马尔可夫过程是随机的。 采取行动并不意味有100％转移到下一个确定的状态。 严格来说，必须考虑在采取行动后最终进入其他状态的概率。 在采取行动后，<strong>Agent</strong>可能最终处于状态$s^{‘}$类似的，一个行为-价值函数也可以表示成状态-价值函数的形式</p>
-<div align =center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3d400a0611.png" alt="示意图"></p>
+<p>空心较大圆圈表示状态，黑色实心小圆表示的是动作本身，连接状态和动作的线条仅仅把该状态以及该状态下可以采取的行为关联起来。可以看出，在遵循策略<span class="math inline">\(\pi\)</span>时，状态<span class="math inline">\(s\)</span>的价值体现为在该状态下遵循某一策略而采取所有可能行为的价值按行为发生概率的乘积求和。 <span class="math display">\[
+v_{\pi}(s)= \sum_{a \in \mathcal{A}} \pi(a \vert s) q_{\pi}(s, a)
+\]</span></p>
+让我们考虑上图中的相反情况。根现在是一个我们选择采取特定动作的状态。由于马尔可夫过程是随机的。 采取行动并不意味有100％转移到下一个确定的状态。 严格来说，必须考虑在采取行动后最终进入其他状态的概率。 在采取行动后，<strong>Agent</strong>可能最终处于状态<span class="math inline">\(s^{&#39;}\)</span>类似的，一个行为-价值函数也可以表示成状态-价值函数的形式
+<div data-align="center">
+<figure>
+<img src="https://i.loli.net/2018/11/08/5be3d400a0611.png" alt="示意图" /><figcaption aria-hidden="true">示意图</figcaption>
+</figure>
 </div>
-
-<p>$$<br>q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a v_{\pi} (s’)<br>$$</p>
-<p>从将上面两式结合起来可以得到$q_{\pi}(s, a) \leftarrow q_{\pi} (s’, a’)$ 要注意到这种<strong>递推关系</strong>:</p>
-<p>$$<br>q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a \sum_{a’ \in \mathcal{A}} \pi(a’ \vert s’) q_{\pi} (s’, a’)<br>$$</p>
-<div align = center>
-
-<p><img src="https://i.loli.net/2018/11/08/5be3d400a0f8a.png" alt="示意图"></p>
+<p><span class="math display">\[
+q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;}^a v_{\pi} (s&#39;)
+\]</span></p>
+<p>从将上面两式结合起来可以得到<span class="math inline">\(q_{\pi}(s, a) \leftarrow q_{\pi} (s&#39;, a&#39;)\)</span> 要注意到这种<strong>递推关系</strong>:</p>
+<span class="math display">\[
+q_{\pi}(s, a) = R(s, a) + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;}^a \sum_{a&#39; \in \mathcal{A}} \pi(a&#39; \vert s&#39;) q_{\pi} (s&#39;, a&#39;)
+\]</span>
+<div data-align="center">
+<figure>
+<img src="https://i.loli.net/2018/11/08/5be3d400a0f8a.png" alt="示意图" /><figcaption aria-hidden="true">示意图</figcaption>
+</figure>
 </div>
-
-
-<p>同理可得$v_{\pi}(s) \leftarrow v_{\pi} (s’)$<br>$$<br>v_{\pi}(s) = \sum_{a \in \mathcal{A}} \pi(a \vert s) \big( R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a v_{\pi} (s’) \big)<br>$$</p>
-<div align = center >
-
-<p><img src="https://i.loli.net/2018/11/08/5be3e76b3af8f.png" alt="示意图"></p>
+<p>同理可得<span class="math inline">\(v_{\pi}(s) \leftarrow v_{\pi} (s&#39;)\)</span> <span class="math display">\[
+v_{\pi}(s) = \sum_{a \in \mathcal{A}} \pi(a \vert s) \big( R(s, a) + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;}^a v_{\pi} (s&#39;) \big)
+\]</span></p>
+<div data-align="center">
+<figure>
+<img src="https://i.loli.net/2018/11/08/5be3e76b3af8f.png" alt="示意图" /><figcaption aria-hidden="true">示意图</figcaption>
+</figure>
 </div>
-
-<h2 id="最优策略"><a href="#最优策略" class="headerlink" title="最优策略"></a>最优策略</h2><p>强化学习中最重要的主题是找到<em>最优</em>动作 使得回报最大化。</p>
-<p>最优状态价值函数$v_{*}(s)$指的是在从所有策略产生的状态价值函数中，选取使状态$s$价值最大的函数:<br>$$<br>v_{*} = \max_{\pi} v_{\pi}(s)<br>$$</p>
-<p>类似的，最优行为价值函数$q_{*}(s,a)$指的是从所有策略产生的行为价值函数中，选取是状态行为对$&lt;s,a&gt;$ 价值最大的函数：</p>
-<p>$$<br>q_{*}(s,a) = \max_{\pi} q_{\pi}(s,a)<br>$$</p>
-<h3 id="寻找最优策略"><a href="#寻找最优策略" class="headerlink" title="寻找最优策略"></a>寻找最优策略</h3><p>当对于任何状态$s$，遵循策略$\pi$的价值不小于遵循策略$\pi’$下的价值，则策略$\pi$优于策略$\pi’$：<br>$$<br>\pi \geq \pi’ \quad if  v_{\pi}(s)\geq v_{\pi’}(s), \forall s<br>$$<br><strong>定理</strong> 对于任何MDP，下面几点成立：</p>
-<ol>
-<li>存在一个最优策略，比任何其他策略更好或至少相等；</li>
-<li>所有的最优策略有相同的最优价值函数；</li>
-<li>所有的最优策略具有相同的行为价值函数。</li>
-</ol>
+<h2 id="最优策略">最优策略</h2>
+<p>强化学习中最重要的主题是找到<em>最优</em>动作 使得回报最大化。</p>
+<p>最优状态价值函数<span class="math inline">\(v_{\*}(s)\)</span>指的是在从所有策略产生的状态价值函数中，选取使状态<span class="math inline">\(s\)</span>价值最大的函数: <span class="math display">\[
+v_{\*} = \max_{\pi} v_{\pi}(s)
+\]</span></p>
+<p>类似的，最优行为价值函数<span class="math inline">\(q_{*}(s,a)\)</span>指的是从所有策略产生的行为价值函数中，选取是状态行为对<span class="math inline">\(&lt;s,a&gt;\)</span> 价值最大的函数：</p>
+<p><span class="math display">\[
+q_{\*}(s,a) = \max_{\pi} q_{\pi}(s,a)
+\]</span></p>
+<h3 id="寻找最优策略">寻找最优策略</h3>
+<p>当对于任何状态<span class="math inline">\(s\)</span>，遵循策略<span class="math inline">\(\pi\)</span>的价值不小于遵循策略<span class="math inline">\(\pi&#39;\)</span>下的价值，则策略<span class="math inline">\(\pi\)</span>优于策略<span class="math inline">\(\pi&#39;\)</span>： <span class="math display">\[
+\pi \geq \pi&#39; \quad if  v_{\pi}(s)\geq v_{\pi&#39;}(s), \forall s  
+\]</span> <strong>定理</strong> 对于任何MDP，下面几点成立： 1. 存在一个最优策略，比任何其他策略更好或至少相等； 2. 所有的最优策略有相同的最优价值函数； 3. 所有的最优策略具有相同的行为价值函数。</p>
 <p>可以通过最大化最优行为价值函数来找到最优策略：</p>
-<p>对于任何MDP问题，总存在一个确定性的最优策略；同时如果我们知道最优行为价值函数，则表明我们找到了最优策略。<br>$$<br>\pi_{*}(a|s) =<br>\begin{cases}<br>1 &amp; if \quad a =\mathop{\arg\max}\limits_{a\in\mathcal{A}} q_{*}(s,a) \\<br>0 &amp; otherwise<br>\end{cases}<br>$$</p>
-<h2 id="贝尔曼最优方程-Bellman-Optimality-Equation"><a href="#贝尔曼最优方程-Bellman-Optimality-Equation" class="headerlink" title="贝尔曼最优方程(Bellman Optimality Equation)"></a>贝尔曼最优方程(Bellman Optimality Equation)</h2><p>针对$v_{*}$，一个状态的最优价值等于从该状态出发采取的所有行为产生的行为价值中最大的那个行为价值：<br>$$<br>v_{*}(s) = \max_{a \in \mathcal{A}} q_*(s,a)<br>$$</p>
-<p>对于 $q_{*}$，在某个状态$s$下，采取某个行为的最优价值由2部分组成，一部分是离开状态 $s$的即刻奖励，另一部分则是所有能到达的状态$s’$ 的最优状态价值按出现概率相乘求和：<br>$$<br>q_{*}(s, a) = R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a v_{*}(s’)<br>$$</p>
-<p>将以上两式组合起来有：<br>$$<br>v_{*}(s) = \max_{a \in \mathcal{A}} \big( R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a v_{*}(s’) \big)<br>$$</p>
-<p>$$<br>q_{*}(s, a) = R(s, a) + \gamma \sum_{s’ \in \mathcal{S}} P_{ss’}^a \max_{a’ \in \mathcal{A}} q_{*}(s’, a’)<br>$$</p>
+<p>对于任何MDP问题，总存在一个确定性的最优策略；同时如果我们知道最优行为价值函数，则表明我们找到了最优策略。 <span class="math display">\[
+\pi_{\*}(a|s) =
+\begin{cases}
+1 &amp; if \quad a =\mathop{\arg\max}\limits_{a\in\mathcal{A}} q_{\*}(s,a) \\\\
+0 &amp; otherwise
+\end{cases}
+\]</span></p>
+<h2 id="贝尔曼最优方程bellman-optimality-equation">贝尔曼最优方程(Bellman Optimality Equation)</h2>
+<p>针对<span class="math inline">\(v_{\*}\)</span>，一个状态的最优价值等于从该状态出发采取的所有行为产生的行为价值中最大的那个行为价值： <span class="math display">\[
+v_{\*}(s) = \max_{a \in \mathcal{A}} q_*(s,a)
+\]</span></p>
+<p>对于 <span class="math inline">\(q_{\*}\)</span>，在某个状态<span class="math inline">\(s\)</span>下，采取某个行为的最优价值由2部分组成，一部分是离开状态 <span class="math inline">\(s\)</span>的即刻奖励，另一部分则是所有能到达的状态<span class="math inline">\(s&#39;\)</span> 的最优状态价值按出现概率相乘求和： <span class="math display">\[
+q_{\*}(s, a) = R(s, a) + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;}^a v_{\*}(s&#39;)
+\]</span></p>
+<p>将以上两式组合起来有： <span class="math display">\[
+v_{\*}(s) = \max_{a \in \mathcal{A}} \big( R(s, a) + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;}^a v_{\*}(s&#39;) \big) 
+\]</span></p>
+<p><span class="math display">\[
+q_{\*}(s, a) = R(s, a) + \gamma \sum_{s&#39; \in \mathcal{S}} P_{ss&#39;}^a \max_{a&#39; \in \mathcal{A}} q_{\*}(s&#39;, a&#39;)
+\]</span></p>
 <p>以上就是贝尔曼最优方程 和之前的贝尔曼期望方程结构非常相似。</p>
-<p>如果我们拥有环境的全部信息，这样问题变成一个规划问题，可以用动态规划求解。但是在大多数情景下，我们并不知道$P_{ss’}^a$,$R(s,a)$。所以我们不能直应用贝尔曼方程对MDP进行求解。但是贝尔曼方程是很多强化学习算法的理论基础。务必掌握。</p>
+<p>如果我们拥有环境的全部信息，这样问题变成一个规划问题，可以用动态规划求解。但是在大多数情景下，我们并不知道<span class="math inline">\(P_{ss&#39;}^a\)</span>,<span class="math inline">\(R(s,a)\)</span>。所以我们不能直应用贝尔曼方程对MDP进行求解。但是贝尔曼方程是很多强化学习算法的理论基础。务必掌握。</p>
 
     </div>
 
@@ -413,7 +477,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">深度强化学习基本概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E5%86%B3%E7%AD%96%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">马尔科夫决策过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E8%BF%87%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">马尔可夫过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%A5%96%E5%8A%B1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">马尔可夫奖励过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%B7%E5%80%BC%E5%87%BD%E6%95%B0Value-Function"><span class="nav-number">2.3.</span> <span class="nav-text">价值函数Value Function</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Bellman-%E6%96%B9%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">Bellman 方程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%A5%96%E5%8A%B1%E8%BF%87%E7%A8%8B%E7%9A%84Bellman%E6%96%B9%E7%A8%8B"><span class="nav-number">3.1.</span> <span class="nav-text">马尔可夫奖励过程的Bellman方程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman%E6%96%B9%E7%A8%8B%E7%9A%84%E7%9F%A9%E9%98%B5%E5%BD%A2%E5%BC%8F%E5%92%8C%E6%B1%82%E8%A7%A3"><span class="nav-number">3.1.1.</span> <span class="nav-text">Bellman方程的矩阵形式和求解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%86%B3%E7%AD%96%E8%BF%87%E7%A8%8B-Markov-Decision-Process"><span class="nav-number">3.2.</span> <span class="nav-text">马尔可夫决策过程(Markov Decision Process)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%96%E7%95%A5-Policy"><span class="nav-number">3.3.</span> <span class="nav-text">策略(Policy)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E4%BD%9C-%E4%BB%B7%E5%80%BC%E5%87%BD%E6%95%B0%EF%BC%88Action-Value-Function"><span class="nav-number">3.4.</span> <span class="nav-text">动作-价值函数（Action-Value Function)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#v-pi-s-%E5%92%8C-q-pi-s-a-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">3.4.1.</span> <span class="nav-text">$v_{\pi}(s)$和$q_{\pi}(s,a)$的关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E7%AD%96%E7%95%A5"><span class="nav-number">3.5.</span> <span class="nav-text">最优策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%BB%E6%89%BE%E6%9C%80%E4%BC%98%E7%AD%96%E7%95%A5"><span class="nav-number">3.5.1.</span> <span class="nav-text">寻找最优策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%9D%E5%B0%94%E6%9B%BC%E6%9C%80%E4%BC%98%E6%96%B9%E7%A8%8B-Bellman-Optimality-Equation"><span class="nav-number">3.6.</span> <span class="nav-text">贝尔曼最优方程(Bellman Optimality Equation)</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%B7%B1%E5%BA%A6%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">深度强化学习基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">马尔可夫过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%A5%96%E5%8A%B1%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">马尔可夫奖励过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%B7%E5%80%BC%E5%87%BD%E6%95%B0value-function"><span class="nav-number">1.3.</span> <span class="nav-text">价值函数Value Function</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#bellman-%E6%96%B9%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">Bellman 方程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%A5%96%E5%8A%B1%E8%BF%87%E7%A8%8B%E7%9A%84bellman%E6%96%B9%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">马尔可夫奖励过程的Bellman方程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%86%B3%E7%AD%96%E8%BF%87%E7%A8%8Bmarkov-decision-process"><span class="nav-number">2.2.</span> <span class="nav-text">马尔可夫决策过程(Markov Decision Process)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AD%96%E7%95%A5policy"><span class="nav-number">2.3.</span> <span class="nav-text">策略(Policy)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E4%BD%9C-%E4%BB%B7%E5%80%BC%E5%87%BD%E6%95%B0action-value-function"><span class="nav-number">2.4.</span> <span class="nav-text">动作-价值函数（Action-Value Function)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#v_pis%E5%92%8Cq_pisa%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-number">2.4.1.</span> <span class="nav-text">\(v_{\pi}(s)\)和\(q_{\pi}(s,a)\)的关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E7%AD%96%E7%95%A5"><span class="nav-number">2.5.</span> <span class="nav-text">最优策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%BB%E6%89%BE%E6%9C%80%E4%BC%98%E7%AD%96%E7%95%A5"><span class="nav-number">2.5.1.</span> <span class="nav-text">寻找最优策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B4%9D%E5%B0%94%E6%9B%BC%E6%9C%80%E4%BC%98%E6%96%B9%E7%A8%8Bbellman-optimality-equation"><span class="nav-number">2.6.</span> <span class="nav-text">贝尔曼最优方程(Bellman Optimality Equation)</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -442,7 +506,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
