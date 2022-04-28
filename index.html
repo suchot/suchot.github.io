@@ -163,6 +163,87 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://suchot.github.io/2022/04/28/arap-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
+      <meta itemprop="name" content="such">
+      <meta itemprop="description" content="These violent delights have violent ends">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VorTex">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/04/28/arap-2/" class="post-title-link" itemprop="url">Implementing As-Rigid-As-Possible Shape Manipulation</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-04-28 21:19:48 / 修改时间：21:23:14" itemprop="dateCreated datePublished" datetime="2022-04-28T21:19:48+08:00">2022-04-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E4%BD%9C/" itemprop="url" rel="index"><span itemprop="name">工作</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="intro">Intro</h2>
+<p>作者在发表ARAP后，于2009年又发表一篇基于ARAP实现上的<a href="">改进工作</a>。使实现变得更简洁通用。其中主要有两个主要改进。</p>
+<ul>
+<li>使用<strong>边</strong>为变形的基本单位。提高了代码的简洁性。</li>
+<li>控制形变交互时，无需点击三角化后图像上的顶点，点击其中任意坐标即可。</li>
+</ul>
+<p>和ARAP一样，算法的目标是在形变过程中，变换尽可能刚性，最小化每个三角形的扭曲。由于是一个非线性问题，得不到问题的解析解，所以作者将一个非线性优化问题近似分解为一系列的线性问题。 第一步允许旋转和平移，以及一致缩放(uniform scaling),惩罚非一致性缩放。第二步将第一步得到的结果通过进行自由平移得到最终的结果。这时惩罚旋转，和缩放。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/04/28/arap-2/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://suchot.github.io/2022/04/20/arap/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -905,79 +986,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://suchot.github.io/2018/09/25/Jupyter_kernel/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar_1.jpg">
-      <meta itemprop="name" content="such">
-      <meta itemprop="description" content="These violent delights have violent ends">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="VorTex">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/09/25/Jupyter_kernel/" class="post-title-link" itemprop="url">Jupyter Notebook 添加 kernel</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-09-25 22:25:10" itemprop="dateCreated datePublished" datetime="2018-09-25T22:25:10+08:00">2018-09-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-14 20:28:29" itemprop="dateModified" datetime="2021-06-14T20:28:29+08:00">2021-06-14</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景">背景</h2>
-<p>创建虚拟环境后，重新打开Jupyter Notebook 发现kernel里没有新的环境。 ## 解决方法
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2018/09/25/Jupyter_kernel/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1049,7 +1057,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
