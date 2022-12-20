@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_1.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"suchot.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Intro 作者在发表ARAP后，于2009年又发表一篇基于ARAP实现上的改进工作。使实现变得更简洁通用。其中主要有两个主要改进。  使用边为变形的基本单位。提高了代码的简洁性。 控制形变交互时，无需点击三角化后图像上的顶点，点击其中任意坐标即可。  和ARAP一样，算法的目标是在形变过程中，变换尽可能刚性，最小化每个三角形的扭曲。由于是一个非线性问题，得不到问题的解析解，所以作者将一个非线性优">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Implementing As-Rigid-As-Possible Shape Manipulation">
+<meta property="og:url" content="https://suchot.github.io/2022/04/28/arap-2/index.html">
+<meta property="og:site_name" content="VorTex">
+<meta property="og:description" content="Intro 作者在发表ARAP后，于2009年又发表一篇基于ARAP实现上的改进工作。使实现变得更简洁通用。其中主要有两个主要改进。  使用边为变形的基本单位。提高了代码的简洁性。 控制形变交互时，无需点击三角化后图像上的顶点，点击其中任意坐标即可。  和ARAP一样，算法的目标是在形变过程中，变换尽可能刚性，最小化每个三角形的扭曲。由于是一个非线性问题，得不到问题的解析解，所以作者将一个非线性优">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220423232406842.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220425205349089.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220425223526210.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220425223544331.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220426230437457.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220427222214880.png">
+<meta property="article:published_time" content="2022-04-28T13:19:48.000Z">
+<meta property="article:modified_time" content="2022-12-20T12:42:05.511Z">
+<meta property="article:author" content="such">
+<meta property="article:tag" content="cv">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220423232406842.png">
+
+<link rel="canonical" href="https://suchot.github.io/2022/04/28/arap-2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>Implementing As-Rigid-As-Possible Shape Manipulation | VorTex</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">VorTex</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://suchot.github.io/2022/04/28/arap-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
+      <meta itemprop="name" content="such">
+      <meta itemprop="description" content="These violent delights have violent ends">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VorTex">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Implementing As-Rigid-As-Possible Shape Manipulation
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-28 21:19:48" itemprop="dateCreated datePublished" datetime="2022-04-28T21:19:48+08:00">2022-04-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-20 20:42:05" itemprop="dateModified" datetime="2022-12-20T20:42:05+08:00">2022-12-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E4%BD%9C/" itemprop="url" rel="index"><span itemprop="name">工作</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="intro">Intro</h2>
+<p>作者在发表ARAP后，于2009年又发表一篇基于ARAP实现上的<a href="">改进工作</a>。使实现变得更简洁通用。其中主要有两个主要改进。</p>
+<ul>
+<li>使用<strong>边</strong>为变形的基本单位。提高了代码的简洁性。</li>
+<li>控制形变交互时，无需点击三角化后图像上的顶点，点击其中任意坐标即可。</li>
+</ul>
+<p>和ARAP一样，算法的目标是在形变过程中，变换尽可能刚性，最小化每个三角形的扭曲。由于是一个非线性问题，得不到问题的解析解，所以作者将一个非线性优化问题近似分解为一系列的线性问题。 第一步允许旋转和平移，以及一致缩放(uniform scaling),惩罚非一致性缩放。第二步将第一步得到的结果通过进行自由平移得到最终的结果。这时惩罚旋转，和缩放。</p>
+<span id="more"></span>
+<hr />
+<h2 id="algorithm">Algorithm</h2>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220423232406842.png" /></p>
+<p>在之前的文章里，作者选择面片来表现三角形的扭曲，而在这里却选择用<strong>边</strong>来表现扭曲。 对于表现扭曲变换来说，点不是个好选择。而面片相比于边来说更为直观表现刚性。所以作者在前一篇文章里选择的就是面片。 但是由于使用面片相比于边来说，要计算三角形的三个边来定义扭曲。不利于编程实现。所以在这里选择基于边的实现。<span class="math inline">\(v_i - v_j\)</span>。</p>
+<h3 id="baseline">Baseline</h3>
+<p>问题定义，为了变形后的图形尽可能接近原始图形，可以定义为下式： <span class="math display">\[
+v_{j}^{\prime}-v_{i}^{\prime}=v_{j}-v_{i}(\{i, j\} \in E) \text { subject to constraints } v_{i}^{\prime}=C_{i} \quad(i \in C)
+\]</span> 其中<span class="math inline">\(E\)</span>表示顶点序号为 <span class="math inline">\({i,j}\)</span> 的边的集合，<span class="math inline">\(v_j^{\prime} - v_i^{\prime}\)</span> 表示变形后边向量， <span class="math inline">\(v_j- v_i\)</span> 表示对应的变形前的边向量， <span class="math inline">\(C_i\)</span>表示变形时选择的控制点元素，<span class="math inline">\(C\)</span>表示控制点的集合。根据上式可以得到一个优化方程 <span class="math display">\[
+\arg \min _{v^{\prime} \in V}\left\{\sum_{\{i, j\} \in E}\left\|\left(v_{j}{ }^{\prime}-v_{i}^{\prime}\right)-\left(v_{j}-v_{i}\right)\right\|^{2}+\sum_{i \in C}\left\|\omega\left(v_{i}{ }^{\prime}-C_{i}\right)\right\|^{2}\right\}
+\]</span> <span class="math inline">\(\omega\)</span>表示权重，论文里默认配置 <span class="math inline">\(\omega = 1000\)</span> , 上式优化方程中 <span class="math inline">\(v_{j}-v_{i}\)</span> 在三角面片划分好之后就是常数, <span class="math inline">\(C_i\)</span> 在选定控制点之后也是常数，变量为<span class="math inline">\(v^{\prime} = (v_0^{\prime}, v_1^{\prime}, \cdots, v_n^{\prime})^T\)</span> 。所以可以将公式抽象为下式 <span class="math display">\[
+\arg \min _{v^{\prime}}\left\|A v^{\prime}-b\right\|^{2}
+\]</span> 把上式展开来表示就变成了 <span class="math display">\[
+\underbrace{\left[\begin{array}{cc}
+1 &amp;  &amp; -1  &amp;      \\
+  &amp; -1 &amp; 1 &amp;      \\
+&amp; &amp; \vdots &amp;      \\
+  \hline 
+&amp;  &amp;  w  &amp;        \\
+w  &amp;  &amp;  &amp;        \\
+&amp;  &amp;  \vdots &amp;    \\
+\end{array}\right]}_{\mathrm{A}} \underbrace{\left[\begin{array}{c}
+v_{0 x}^{\prime} \\
+v_{1 x}^{\prime} \\
+\vdots \\
+       \\
+\end{array}\right]}_{\mathbf{v}_{x}^{\prime}} -\underbrace{\left[\begin{array}{c}
+e_{0x} \\
+e_{1x} \\
+\vdots \\
+\hline
+\omega c_{0x} \\
+\omega c_{1x} \\
+\vdots
+\end{array}\right]}_{b}
+\]</span></p>
+<p>可以简单分析下， <span class="math inline">\(\boldsymbol{v}^{\prime}=\left(\begin{array}{cc} \mathcal{v}_{0 x} &amp; \mathcal{v}_{0 y} \\ \mathcal{v}_{1 x} &amp; \mathcal{v}_{1 x} \\ \vdots &amp; \vdots \\ \mathcal{v}_{n x} &amp; \mathcal{v}_{n x} \end{array}\right)\)</span> , 可以拆成两个矩阵<span class="math inline">\(v_x^{\prime}, v_y^{\prime}\)</span> 。则可表示<span class="math inline">\(v^{\prime}=(v_x^{\prime} \quad \vdots \quad v_y^{\prime})\)</span> 。 同理可以将 <span class="math inline">\(b\)</span> 也表示为相同的形式<span class="math inline">\((b_x^{\prime} \quad \vdots \quad b_y^{\prime})\)</span> 。 把 <span class="math inline">\(A v^{\prime}-b\)</span> 可以表示为 <span class="math display">\[
+\begin{aligned}
+&amp;A v^{\prime}-b \\
+&amp;\Leftrightarrow A\left(v_{x}^{\prime} \quad \vdots \quad  v_{y}^{\prime}\right)-\left(b_{x} \quad \vdots \quad b_{y}\right) \\
+&amp;\Leftrightarrow\left(A v_{x}^{\prime}-b_{x} \quad \vdots \quad A v_{y}^{\prime}-b_{y}\right)
+\end{aligned}
+\]</span> 如果对上面这个向量求模平方，可以相当于把两部分元素分别取模再求和，则有 <span class="math display">\[
+\begin{aligned}
+&amp;\arg \min _{v^{\prime}}\left\|A v^{\prime}-b\right\|^{2} \\
+&amp;\Leftrightarrow \arg \min _{v^{\prime}}\left(\left\|A v_{x}{ }^{\prime}-b_{x}\right\|^{2}+\left\|A v_{y}{ }^{\prime}-b_{y}\right\|^{2}\right) \\
+&amp;\Leftrightarrow \arg \min _{v^{\prime}}\left\|A v_{x}{ }^{\prime}-b_{x}\right\|^{2}+\arg \min _{v^{\prime}}\left\|A v_{y}{ }^{\prime}-b_{y}\right\|^{2}
+\end{aligned}
+\]</span> 此外也有 <span class="math display">\[
+\begin{aligned}
+&amp;\left\{\begin{array}{l}
+\overrightarrow{E_{1}}=A_{1} \vec{v}+\overrightarrow{b_{1}} \\
+\overrightarrow{E_{2}}=A_{2} \vec{v}+\overrightarrow{b_{2}}
+\end{array}\right. \\
+&amp; \\
+&amp;\vec{E}=\left[\begin{array}{l}
+\overrightarrow{E_{1}} \\
+\cdots \\
+\overrightarrow{E_{2}}
+\end{array}\right]=\left[\begin{array}{c}
+A_{1} \\
+\cdots \\
+A_{2}
+\end{array}\right] \vec{v}+\left[\begin{array}{l}
+\overrightarrow{b_{1}} \\
+\cdots \\
+\overrightarrow {b_{2}}
+\end{array}\right] \\
+&amp;\|\overrightarrow{E}\|^{2}=\left\|\begin{array}{l}
+\overrightarrow{E_{1}} \\
+\cdots \\
+\overrightarrow {E_{2}}
+\end{array}\right\|^{2}=\left\|\overrightarrow{E_{1}}\right\|^{2}+\left\|\overrightarrow{E_{2}}\right\|^{2}=\left\|A_{1} \vec{v}+\overrightarrow{b_{1}}\right\|^{2}+\left\|A_{2} \vec{v}+\overrightarrow{b_{2}}\right\|^{2}
+\end{aligned}
+\]</span> 由于<span class="math inline">\(x,y\)</span>表示形式基本相同，仅看 <span class="math inline">\(x\)</span> ，可以将能量方程表示为 <span class="math display">\[
+\arg \min _{v_{v_{i x}^{\prime}}{ }^{\prime} \mid v_{x}^{\prime}}\left\{\sum_{\{i, j\} \in E}\left\|\left(v_{j x}{ }^{\prime}-v_{i x}{ }^{\prime}\right)-\left(v_{j x}-v_{i x}\right)\right\|^{2}+\sum_{i \in C}\left\|\omega\left(v_{i x}{ }^{\prime}-C_{i x}\right)\right\|^{2}\right.
+\]</span> 上式可以化为 <span class="math inline">\(A v^{\prime}-b\)</span> 的形式，其中有 <span class="math display">\[
+\underbrace{\sum_{\{i, j\} \in E}\left\|\left(v_{j x}{ }^{\prime}-v_{i x}{ }^{\prime}\right)-\left(v_{j x}-v_{i x}\right)\right\|^{2}}_{\sum_{i&lt;=n}\left\|A_{1} v_{x}{ }^{\prime}-b_{1}\right\|^{2}}
+\]</span> 和 <span class="math display">\[
+\underbrace{\sum_{i \in C}\left\|\omega\left(v_{i x}{ }^{\prime}-C_{i x}\right)\right\|^{2}}_{\sum_{k=n}\left\|\omega\left(A_{2} v_{x}{ }^{\prime}-b_{2}\right)\right\|^{2}}
+\]</span> 把这两个组合起来，就能写成 <span class="math display">\[
+\sum_{i&lt;=n}\left\|\left[\begin{array}{c}
+A_{1} \\
+\cdots \\
+\omega A_{2}
+\end{array}\right] v_{x}{ }^{\prime}-\left[\begin{array}{c}
+b_{1} \\
+\cdots \\
+\omega b_{2}
+\end{array}\right]\right\|^{2}
+\]</span></p>
+<p>这个式子和论文里的式子(下式)是不是结构就一致了，对应的位置值的意义就明白了。 <span class="math display">\[
+\underbrace{\left[\begin{array}{cc}
+1 &amp;  &amp; -1  &amp;      \\
+  &amp; -1 &amp; 1 &amp;      \\
+&amp; &amp; \vdots &amp;      \\
+  \hline 
+&amp;  &amp;  w  &amp;        \\
+w  &amp;  &amp;  &amp;        \\
+&amp;  &amp;  \vdots &amp;    \\
+\end{array}\right]}_{\mathrm{A}} \underbrace{\left[\begin{array}{c}
+v_{0 x}^{\prime} \\
+v_{1 x}^{\prime} \\
+\vdots \\
+       \\
+\end{array}\right]}_{\mathbf{v}_{x}^{\prime}} -\underbrace{\left[\begin{array}{c}
+e_{0x} \\
+e_{1x} \\
+\vdots \\
+\hline
+\omega c_{0x} \\
+\omega c_{1x} \\
+\vdots
+\end{array}\right]}_{b}
+\]</span></p>
+<p><span class="math inline">\(A_1\)</span> 中的1，-1表示对应位置的 <span class="math inline">\(v_{ix}^{\prime} - v_{jx}^{\prime}\)</span>。$ e_{ix}$ 表示的就是对应的 <span class="math inline">\(v_{ix} - v_{jx}\)</span>，其值在三角剖分表示完后，就是一个定值。<span class="math inline">\(\omega\)</span> 对应位置为控制点。 最后对形如<span class="math inline">\(||A v^{\prime}-b||^2\)</span>最小二乘优化问题。可以得到 <span class="math display">\[
+A^{T} A v^{\prime}=A^{T} b
+\]</span> 通过求解这个方程就能得到变形后所有点的新坐标，<span class="math inline">\(y\)</span> 分量也是一样的操作。<span class="math inline">\(v^{\prime} = (A^{T}A)^{-1}A^Tb\)</span></p>
+<h2 id="step-one---相似性变换">Step One - 相似性变换</h2>
+<p>首先对于图中的边<span class="math inline">\(e_k\)</span>进行<strong>相似变换</strong>。</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220425205349089.png" /></p>
+<p>将边 <span class="math inline">\(e_k\)</span> 对应的邻接点可以表示为<span class="math inline">\(N(e_k) = \{v_i, v_j, v_l, v_r\}\)</span> <span class="math inline">\(l\)</span> 表示left， <span class="math inline">\(r\)</span> 表示right。当 <span class="math inline">\(e_k\)</span> 表示的是边界边时， 则对应的邻接点只有三个。论文里对旋转定义了一个旋转变换 <span class="math inline">\(T_{k}=\left[\begin{array}{cc} \mathcal{c}_{k} &amp; s_{k} \\ -s_{k} &amp; \mathcal{c}_{k} \end{array}\right]\)</span> <span class="math inline">\(c\)</span> 表示 <span class="math inline">\(\cos\)</span> , <span class="math inline">\(s\)</span> 表示<span class="math inline">\(\sin\)</span>. <span class="math inline">\(T\)</span> 表示Transformation。旋转变换的目的是让边 <span class="math inline">\(e_k\)</span> 的邻接点在变形时位置尽量不变。 那么优化方程表示为 <span class="math display">\[
+T_{k}=\arg \min _{T_{k}} \sum_{v \in N\left(e_{k}\right)}\left\|T_{k} v-v^{\prime}\right\|^{2}
+\]</span> <img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220425223526210.png" /></p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220425223544331.png" /></p>
+<p>可以看出和之前一样，这也是一个形如<span class="math inline">\(A x^{\prime}-b\)</span> 的线性最小二乘优化问题。 对<span class="math inline">\((c_k, v_k)^T\)</span> 求偏导，并使其值为0，得到 <span class="math display">\[
+\left[\begin{array}{c}
+c_{k} \\
+s_{k}
+\end{array}\right]=\left(G_{k}^{T} G_{k}\right)^{-1} G_{k}^{T}\left[\begin{array}{c}
+v_{i x}{ }^{\prime} \\
+v_{i y}{ }^{\prime} \\
+\vdots
+\end{array}\right]
+\]</span> 将<span class="math inline">\(T_{ij}\)</span> 的值放到总的优化方程里如下式 <span class="math display">\[
+\arg \min _{v^{\prime} \in V}\left\{\sum_{\{i, j\} \in E}\left\|\left(v_{j}{ }^{\prime}-v_{i}^{\prime}\right)-T_{ij}\left(v_{j}-v_{i}\right)\right\|^{2}+\sum_{i \in C}\left\|\omega\left(v_{i}{ }^{\prime}-C_{i}\right)\right\|^{2}\right\}
+\]</span> 其前半部分可以表示为 <span class="math display">\[
+\begin{aligned}
+&amp;\left(v_{j}{ }^{\prime}-v_{i}{ }^{\prime}\right)-T_{i j}\left(v_{j}-v_{i}\right)\\
+&amp;=\left(v_{j}{ }^{\prime}-v_{i}{ }^{\prime}\right)-\left[\begin{array}{cc}
+c_{k} &amp; s_{k} \\
+-s_{k} &amp; c_{k}
+\end{array}\right] e_{k}\\
+&amp;=\left(v_{j}{ }^{\prime}-v_{i}{ }^{\prime}\right)-\left[\begin{array}{cc}
+e_{k x} &amp; e_{k y} \\
+e_{k y} &amp; -e_{k x}
+\end{array}\right]\left[\begin{array}{l}
+c_{k} \\
+s_{k}
+\end{array}\right]\\
+&amp;=\left(v_{j}{ }^{\prime}-v_{i}{ }^{\prime}\right)-\left[\begin{array}{cc}
+e_{k x} &amp; e_{k y} \\
+e_{k y} &amp; -e_{k x}
+\end{array}\right]\left(G_{k}^{T} G_{k}\right)^{-1} G_{k}^T\left[\begin{array}{c}
+v_{i x}{ }^{\prime} \\
+v_{i y}{ }^{\prime} \\
+\vdots
+\end{array}\right]\\
+&amp;=\left(\left[\begin{array}{cccccccc}
+-1 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; -1 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{array}\right]-\left[\begin{array}{cc}
+e_{k x} &amp; e_{k y} \\
+e_{k y} &amp; -e_{k x}
+\end{array}\right]\left(G_{k}^{T} G_{k}\right)^{-1} G_{k}^T\right) \times\left[\begin{array}{c}
+v_{i x}{ }^{\prime} \\
+v_{i y}{ }^{\prime} \\
+\vdots
+\end{array}\right]\\
+&amp;=\left[\begin{array}{llllllll}
+h_{k_{k 0}} &amp; h_{k_{10}} &amp; h_{k_{20}} &amp; h_{k_{30}} &amp; h_{k_{40}} &amp; h_{k_{k_{0}}} &amp; h_{k_{k_{0}}} &amp; h_{k_{x p}} \\
+h_{k_{01}} &amp; h_{k_{11}} &amp; h_{k_{21}} &amp; h_{k_{31}} &amp; h_{k_{41}} &amp; h_{k_{k_{1}}} &amp; h_{k_{k_{1}}} &amp; h_{k_{71}}
+\end{array}\right]\left[\begin{array}{l}
+v_{i x}{ }^{\prime} \\
+v_{i y}{ }^{\prime} \\
+v_{j x}{ }^{\prime} \\
+v_{j y}{ }^{\prime} \\
+v_{l x}{ }^{\prime} \\
+v_{l y}{ }^{\prime} \\
+v_{r x}{ }^{\prime} \\
+v_{r y}{ }^{\prime}
+\end{array}\right]
+\end{aligned}
+\]</span> 对应的优化方程为 <span class="math inline">\(\arg \min _{v^{\prime}}\left\|A_1 v^{\prime}-b_1\right\|^{2}\)</span> , <span class="math inline">\(b_1 = [0, \cdots, 0]^T\)</span>, <span class="math inline">\(A_1\)</span> = 为i,j,l,r对应位置的<span class="math inline">\(h_k\)</span> 。 所以总的式子，写成矩阵的形式。表示为</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220426230437457.png" /></p>
+<p>求解这个优化方程有 <span class="math display">\[
+A_1^{T} A_1 v^{\prime}=A_1^{T} b
+\]</span></p>
+<h2 id="step-two---尺度匹配">Step Two - 尺度匹配</h2>
+<p>利用第一步算法的输出的旋转矩阵信息<span class="math inline">\(T_k^{\prime}\)</span>为输入。并将其归一化。 <span class="math display">\[
+\left[\begin{array}{c}
+c_{k} \\
+s_{k}
+\end{array}\right]=\left(G_{k}^{T} G_{k}\right)^{-1} G_{k}^{T}\left[\begin{array}{c}
+v_{i x}{ }^{\prime} \\
+v_{i y}{ }^{\prime} \\
+\vdots
+\end{array}\right]
+\]</span></p>
+<p><span class="math display">\[
+T_{k}^{\prime}=\left[\begin{array}{cc}
+c_{k} &amp; s_{k} \\
+-s_{k} &amp; c_{k}
+\end{array}\right]
+\]</span></p>
+<p>再对变换做一个归一化。 <span class="math display">\[
+T_{k}^{\prime}=\frac{1}{\sqrt{c_k^2+s_k^2}}\left[\begin{array}{cc}
+c_{k} &amp; s_{k} \\
+-s_{k} &amp; c_{k}
+\end{array}\right]
+\]</span> 有了<span class="math inline">\(T_{ij}^{\prime}\)</span> 后， 再观察完整的优化方程有 <span class="math display">\[
+\arg \min _{v^{\prime\prime} \in V}\left\{\sum_{\{i, j\} \in E}\left\|\left(v_{j}{ }^{\prime\prime}-v_{i}^{\prime\prime}\right)-T_{ij}^{\prime}\left(v_{j}-v_{i}\right)\right\|^{2}+\sum_{i \in C}\left\|\omega\left(v_{i}{ }^{\prime\prime}-C_{i}\right)\right\|^{2}\right\}
+\]</span> 此时其相对优化方程就是常量<span class="math inline">\(T\)</span>。所以这个优化方程还是和之前一样的线性最小二乘优化。和之前一样可以写成下式 <span class="math display">\[
+\arg\min_{v^{\prime\prime}}||A_2 v^{\prime\prime}-b_2||^2
+\]</span> 同样按照 <span class="math inline">\(x\)</span> 和 <span class="math inline">\(y\)</span> 分开计算</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220427222214880.png" /></p>
+<p>观察这个形式和第一步类似，但是<span class="math inline">\(b\)</span>中的"边"向量是第一步的结果生成。 总的来说，这两个两矩阵有很多矩阵可以预计算得到。 <span class="math display">\[
+A_1^{T} A_1 v^{\prime}=A_1^{T} b_1
+\]</span></p>
+<p><span class="math display">\[
+A_2^{T} A_2 v^{\prime\prime}=A_2^{T} b_2
+\]</span></p>
+<p><span class="math inline">\(A_1\)</span> 和 <span class="math inline">\(A_2\)</span> 的<strong>上</strong>半部分是由原始图形的点集获得。所以在一开始就可以预计算得到。</p>
+<p><span class="math inline">\(A_1\)</span> 和 <span class="math inline">\(A_2\)</span> 的<strong>下</strong>半部分是在点击控制点时实时计算，<span class="math inline">\(\omega\)</span> 值直接在点击控制点时赋值上去就好。</p>
+<p><span class="math inline">\(b_1\)</span> 和 <span class="math inline">\(b_2\)</span> 则是由控制点坐标组成在用户拖动控制点时实时变化生成。</p>
+<p>这样通过求解这两个线性方程组，就可以得到最终的形变后点的新坐标。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cv/" rel="tag"># cv</a>
+              <a href="/tags/paper/" rel="tag"># paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/04/20/arap/" rel="prev" title="ARAP--As rigid as possible">
+      <i class="fa fa-chevron-left"></i> ARAP--As rigid as possible
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/12/20/MacTransErr/" rel="next" title="Mac 浏览器 自带的翻译出现 “翻译暂时不可用”的情况">
+      Mac 浏览器 自带的翻译出现 “翻译暂时不可用”的情况 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#algorithm"><span class="nav-number">2.</span> <span class="nav-text">Algorithm</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#baseline"><span class="nav-number">2.1.</span> <span class="nav-text">Baseline</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step-one---%E7%9B%B8%E4%BC%BC%E6%80%A7%E5%8F%98%E6%8D%A2"><span class="nav-number">3.</span> <span class="nav-text">Step One - 相似性变换</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step-two---%E5%B0%BA%E5%BA%A6%E5%8C%B9%E9%85%8D"><span class="nav-number">4.</span> <span class="nav-text">Step Two - 尺度匹配</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="such"
+      src="/images/avatar_1.jpg">
+  <p class="site-author-name" itemprop="name">such</p>
+  <div class="site-description" itemprop="description">These violent delights have violent ends</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">such</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '4c3c296aa618af2f3f22',
+      clientSecret: '7c0354a7bf0302fdea06afd254c383d8f91bbb56',
+      repo        : 'suchot.github.io',
+      owner       : 'suchot',
+      admin       : ['suchot'],
+      id          : '472e03e307a13c772b0d4299ca5cc188',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>

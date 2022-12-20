@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_1.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"suchot.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="作者针对StyleGAN遗留的问题，对模型进行了修改，进一步提高的生成图像的质量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="StyleGAN2">
+<meta property="og:url" content="https://suchot.github.io/2021/11/13/stylegan2/index.html">
+<meta property="og:site_name" content="VorTex">
+<meta property="og:description" content="作者针对StyleGAN遗留的问题，对模型进行了修改，进一步提高的生成图像的质量。">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211118234610043.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*ePDR3N6VMQCZ0T5ZXxODpA-20211120153115784.jpeg">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*yI_pPzvb5Wal4YNniHjmAw.jpeg">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120111054915.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120130504228.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*gZxpT4wQs3fZ_Acj-hglhA-20211120153155126.jpeg">
+<meta property="article:published_time" content="2021-11-13T15:22:13.000Z">
+<meta property="article:modified_time" content="2022-12-20T12:46:00.361Z">
+<meta property="article:author" content="such">
+<meta property="article:tag" content="生成模型">
+<meta property="article:tag" content="深度学习">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211118234610043.png">
+
+<link rel="canonical" href="https://suchot.github.io/2021/11/13/stylegan2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>StyleGAN2 | VorTex</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">VorTex</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://suchot.github.io/2021/11/13/stylegan2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
+      <meta itemprop="name" content="such">
+      <meta itemprop="description" content="These violent delights have violent ends">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VorTex">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          StyleGAN2
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-13 23:22:13" itemprop="dateCreated datePublished" datetime="2021-11-13T23:22:13+08:00">2021-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-20 20:46:00" itemprop="dateModified" datetime="2022-12-20T20:46:00+08:00">2022-12-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E4%BD%9C/" itemprop="url" rel="index"><span itemprop="name">工作</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E4%BD%9C/%E4%BA%BA%E8%84%B8/" itemprop="url" rel="index"><span itemprop="name">人脸</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>作者针对StyleGAN遗留的问题，对模型进行了修改，进一步提高的生成图像的质量。</p>
+<span id="more"></span>
+<h2 id="主要贡献">主要贡献</h2>
+<ul>
+<li>修复StyleGAN存在的“水滴”的伪影。</li>
+<li>解决相位上的问题，比如侧脸上的牙齿仍然是正向。</li>
+<li>提高生成质量。</li>
+</ul>
+<h2 id="水滴伪影">水滴伪影</h2>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211118234610043.png" /></p>
+<p>水滴伪影，既出现在生成的图片上，也出现在feature map 上。虽然在生成图片上不明显，但是生成网络的很多层上都会出现（64*64以上），作者认为导致水滴的原因是因为AdaIN的风格迁移的操作， AdaIN 对每层 feature map 进行归一化，因此会潜在破坏feature map 之间的信息。</p>
+<h3 id="模型修改">模型修改</h3>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*ePDR3N6VMQCZ0T5ZXxODpA-20211120153115784.jpeg" /></p>
+<blockquote>
+<p>图源：https://jonathan-hui.medium.com/gan-stylegan-stylegan2-479bdf256299</p>
+</blockquote>
+<p>从StyleGAN的结构图上可以看出，v2 做出了如下改动</p>
+<ul>
+<li>简化了常量c的输入方式。</li>
+<li>在规则化时去掉了取均值操作。</li>
+<li>将噪声的模块移除到style block模块之外。</li>
+</ul>
+<h4 id="weight-demodulation">weight demodulation</h4>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*yI_pPzvb5Wal4YNniHjmAw.jpeg" /></p>
+<blockquote>
+<p>图源：https://jonathan-hui.medium.com/gan-stylegan-stylegan2-479bdf256299</p>
+</blockquote>
+<p><span class="math display">\[
+w^{&quot;}_{ijk} = \frac{w^{&#39;}_{ijk}}{\sqrt{\sum_{ij} {w^{&#39;}_{ijk}}^{2} + \epsilon}}
+\]</span></p>
+<p><span class="math display">\[
+w^{&#39;}_{ijk} = s_i \cdot w_{ijk}
+\]</span></p>
+<p>作者将之前的缩放特征图修改为缩放卷积的权重；<span class="math inline">\(s_i\)</span> 是第 <span class="math inline">\(i\)</span> 个特征图的缩放比例，经过缩放之后将输出的特征图重新权重归一化。<span class="math inline">\(\epsilon\)</span> 用来防止分母为0。 尽管从数学角度看，与实例归一化并不完全相等，但达到了近似的结果，并且训练过程更加稳定，最重要的是消除了“水滴”！</p>
+<h2 id="相伪问题">相伪问题</h2>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120111054915.png" /></p>
+<p>指的是生成的影响在一些高频的特征上，比如牙齿缝隙，无论怎么调整latent数值，仍然出于几个特定的位置。作者分析了特征图之后。认为这种现象和使用porgressive growing有关，所以修改了这种递进架构。选择使用残差思想的skip-connection架构。</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120130504228.png" /></p>
+<p>通过实验得出，生成器使用input/output skips，判别器使用Residual nets网络结构的效果最好。通过卷积和双线性上/下采样，来学习上一层和下一层之间的残差。</p>
+<h2 id="loss修改">loss修改</h2>
+<h4 id="延迟正则">延迟正则</h4>
+<p>StyleGANv1在每一次mini-batch后都会计算损失和正则，运算有些浪费，可以将一些正则简化为每隔16个batch运算一次，使得模型的性能更好了。</p>
+<h4 id="感知距离正则">感知距离正则</h4>
+<p>作者提到，感知距离可以用来衡量GAN的性能，为了控制人脸的属性，我们可以改变latent code ，我们更期待在成比例改变latent code某一属性时，得到生成图片的变化也是成比例的，也就是说，当生成图片的变化和预期不同时，就会产生惩罚。</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*gZxpT4wQs3fZ_Acj-hglhA-20211120153155126.jpeg" /> <span class="math display">\[
+\mathbb{E}_{\mathbf{w},\mathbf{y} \sim \mathcal{N}\left(0, \mathbf{I}\right)} \left(||\mathbf{J}^{\mathbf{T}}_{\mathbf{w}}\mathbf{y}||_{2} - a\right)^{2}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{J_{w}} = \delta{g}\left(\mathbf{w}\right)/\delta{\mathbf{w}}
+\]</span></p>
+<p><span class="math inline">\(y\)</span>是符合正态分布的图片，<span class="math inline">\(J_w\)</span>是生成器<span class="math inline">\(g\)</span>对<span class="math inline">\(w\)</span>的一阶雅可比矩阵，表示图像在w上的变化，表示 <span class="math inline">\(\mathbf{J}^{\mathbf{T}}_{\mathbf{w}}\mathbf{y}\)</span>的动态均值。 式中 <span class="math inline">\(\mathbf{J}^{\mathbf{T}}_{\mathbf{w}}\mathbf{y}\)</span> 为了减少雅可比矩阵的计算量，实际由下式计算得到。 <span class="math display">\[
+\mathbf{J}^{\mathbf{T}}_{\mathbf{w}}\mathbf{y} = \nabla_{\mathbf{w}}\left(g\left(\mathbf{w}\right)·y\right)
+\]</span> 通过最优化这个目标来计算这个感知距离长度正则。作者还发现更平滑的生成器可以让图片的反演更为可靠。</p>
+<p>官方给的这部分代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Path length regularization.</span></span><br><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;PathReg&#x27;</span>):</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Evaluate the regularization term using a smaller minibatch to conserve memory.</span></span><br><span class="line">    <span class="keyword">if</span> pl_minibatch_shrink &gt; <span class="number">1</span>:</span><br><span class="line">        pl_minibatch = minibatch_size // pl_minibatch_shrink</span><br><span class="line">        pl_latents = tf.random_normal([pl_minibatch] + G.input_shapes[<span class="number">0</span>][<span class="number">1</span>:])</span><br><span class="line">        pl_labels = training_set.get_random_labels_tf(pl_minibatch)</span><br><span class="line">        fake_images_out, fake_dlatents_out = G.get_output_for(pl_latents, pl_labels, is_training=<span class="literal">True</span>, return_dlatents=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Compute |J*y|.</span></span><br><span class="line">    pl_noise = tf.random_normal(tf.shape(fake_images_out)) / np.sqrt(np.prod(G.output_shape[<span class="number">2</span>:]))</span><br><span class="line">    pl_grads = tf.gradients(tf.reduce_sum(fake_images_out * pl_noise), [fake_dlatents_out])[<span class="number">0</span>]</span><br><span class="line">    pl_lengths = tf.sqrt(tf.reduce_mean(tf.reduce_sum(tf.square(pl_grads), axis=<span class="number">2</span>), axis=<span class="number">1</span>))</span><br><span class="line">    pl_lengths = autosummary(<span class="string">&#x27;Loss/pl_lengths&#x27;</span>, pl_lengths)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Track exponential moving average of |J*y|.</span></span><br><span class="line">    <span class="keyword">with</span> tf.control_dependencies(<span class="literal">None</span>):</span><br><span class="line">        pl_mean_var = tf.Variable(name=<span class="string">&#x27;pl_mean&#x27;</span>, trainable=<span class="literal">False</span>, initial_value=<span class="number">0.0</span>, dtype=tf.float32)</span><br><span class="line">    pl_mean = pl_mean_var + pl_decay * (tf.reduce_mean(pl_lengths) - pl_mean_var)</span><br><span class="line">    pl_update = tf.assign(pl_mean_var, pl_mean)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Calculate (|J*y|-a)^2.</span></span><br><span class="line">    <span class="keyword">with</span> tf.control_dependencies([pl_update]):</span><br><span class="line">        pl_penalty = tf.square(pl_lengths - pl_mean)</span><br><span class="line">        pl_penalty = autosummary(<span class="string">&#x27;Loss/pl_penalty&#x27;</span>, pl_penalty)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Apply weight.</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="comment"># Note: The division in pl_noise decreases the weight by num_pixels, and the reduce_mean</span></span><br><span class="line">    <span class="comment"># in pl_lengths decreases it by num_affine_layers. The effective weight then becomes:</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    <span class="comment"># gamma_pl = pl_weight / num_pixels / num_affine_layers</span></span><br><span class="line">    <span class="comment"># = 2 / (r^2) / (log2(r) * 2 - 2)</span></span><br><span class="line">    <span class="comment"># = 1 / (r^2 * (log2(r) - 1))</span></span><br><span class="line">    <span class="comment"># = ln(2) / (r^2 * (ln(r) - ln(2))</span></span><br><span class="line">    <span class="comment">#</span></span><br><span class="line">    reg = pl_penalty * pl_weight</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> loss, reg</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%94%9F%E6%88%90%E6%A8%A1%E5%9E%8B/" rel="tag"># 生成模型</a>
+              <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag"># 深度学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/10/StyleGAN/" rel="prev" title="StyleGAN">
+      <i class="fa fa-chevron-left"></i> StyleGAN
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/28/daily/" rel="next" title="随便写写">
+      随便写写 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E8%B4%A1%E7%8C%AE"><span class="nav-number">1.</span> <span class="nav-text">主要贡献</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B0%B4%E6%BB%B4%E4%BC%AA%E5%BD%B1"><span class="nav-number">2.</span> <span class="nav-text">水滴伪影</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9E%8B%E4%BF%AE%E6%94%B9"><span class="nav-number">2.1.</span> <span class="nav-text">模型修改</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#weight-demodulation"><span class="nav-number">2.1.1.</span> <span class="nav-text">weight demodulation</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BC%AA%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">相伪问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#loss%E4%BF%AE%E6%94%B9"><span class="nav-number">4.</span> <span class="nav-text">loss修改</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F%E6%AD%A3%E5%88%99"><span class="nav-number">4.0.1.</span> <span class="nav-text">延迟正则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%84%9F%E7%9F%A5%E8%B7%9D%E7%A6%BB%E6%AD%A3%E5%88%99"><span class="nav-number">4.0.2.</span> <span class="nav-text">感知距离正则</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="such"
+      src="/images/avatar_1.jpg">
+  <p class="site-author-name" itemprop="name">such</p>
+  <div class="site-description" itemprop="description">These violent delights have violent ends</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">such</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '4c3c296aa618af2f3f22',
+      clientSecret: '7c0354a7bf0302fdea06afd254c383d8f91bbb56',
+      repo        : 'suchot.github.io',
+      owner       : 'suchot',
+      admin       : ['suchot'],
+      id          : '73a1955e5f7bed44cc1c33b8267710c0',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
