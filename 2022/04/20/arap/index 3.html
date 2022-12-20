@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_1.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"suchot.github.io","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Intro 用数学的方法去变形。 Motivation 就像论文的名字一样，实现尽可能刚性的形状操纵，什么是刚性形变？刚性形变：仅包含平移和旋转的几何变换， 什么物体在刚性形变过后都保持同样的大小和形状。 所以该论文在对形状进行操纵后形变效果相比于原始的图形，尽可能保持了原始的图形的形状。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARAP--As rigid as possible">
+<meta property="og:url" content="https://suchot.github.io/2022/04/20/arap/index.html">
+<meta property="og:site_name" content="VorTex">
+<meta property="og:description" content="Intro 用数学的方法去变形。 Motivation 就像论文的名字一样，实现尽可能刚性的形状操纵，什么是刚性形变？刚性形变：仅包含平移和旋转的几何变换， 什么物体在刚性形变过后都保持同样的大小和形状。 所以该论文在对形状进行操纵后形变效果相比于原始的图形，尽可能保持了原始的图形的形状。">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415214136456.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415230844834.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415232115137.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220418225555994.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220419223633573.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220419235555747.png">
+<meta property="article:published_time" content="2022-04-20T14:27:15.000Z">
+<meta property="article:modified_time" content="2022-12-20T12:42:00.794Z">
+<meta property="article:author" content="such">
+<meta property="article:tag" content="cv">
+<meta property="article:tag" content="paper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415214136456.png">
+
+<link rel="canonical" href="https://suchot.github.io/2022/04/20/arap/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>ARAP--As rigid as possible | VorTex</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">VorTex</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-commonweal">
+
+    <a href="/404/" rel="section"><i class="fa fa-heartbeat fa-fw"></i>公益 404</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://suchot.github.io/2022/04/20/arap/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar_1.jpg">
+      <meta itemprop="name" content="such">
+      <meta itemprop="description" content="These violent delights have violent ends">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="VorTex">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ARAP--As rigid as possible
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-04-20 22:27:15" itemprop="dateCreated datePublished" datetime="2022-04-20T22:27:15+08:00">2022-04-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-20 20:42:00" itemprop="dateModified" datetime="2022-12-20T20:42:00+08:00">2022-12-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B7%A5%E4%BD%9C/" itemprop="url" rel="index"><span itemprop="name">工作</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="intro">Intro</h2>
+<p>用数学的方法去变形。</p>
+<h2 id="motivation">Motivation</h2>
+<p>就像论文的名字一样，实现尽可能刚性的形状操纵，什么是刚性形变？刚性形变：仅包含<strong>平移和旋转</strong>的几何变换， 什么物体在刚性形变过后都保持同样的大小和形状。 所以该论文在对形状进行操纵后形变效果相比于原始的图形，尽可能<strong>保持了原始的图形的形状</strong>。</p>
+<span id="more"></span>
+<hr />
+<h2 id="process">Process</h2>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415214136456.png" /></p>
+<ul>
+<li>Triangulation and registration (三角剖分 Delaunay)</li>
+<li>Compilation</li>
+<li>Manipulation</li>
+</ul>
+<h2 id="triangulation-and-registration">Triangulation and registration</h2>
+<p>对输入的原始图片内部利用现有很成熟的方法进行三角剖分，得到以三角面片和端点构成的集合作为输入。</p>
+<h2 id="algorithm">Algorithm</h2>
+<p>论文的主要贡献是提出了一个两步的算法实现了形变的实时交互。第一步为每一个剖分得到的三角作出一个适当的旋转，第二步是适当的调整旋转后三角形的大小比例。核心点为定义形变前后的误差，转化为最小化能量函数优化问题。在交互开始时求解联立的方程后，我们可以在交互操作过程中快速找到自由顶点的位置。</p>
+<h2 id="step-one--scale-free-construction">Step One--scale-free construction</h2>
+<blockquote>
+<p>Step one generates an intermediate result by minimizing an error function that allows rotation and uniform scaling.</p>
+</blockquote>
+<p>第一步 通过最小化一个只允许旋转和均匀缩放的误差能量函数来得到一个中间结果。均匀的缩放虽然不是刚性变换但也是一个近似刚性的变换<strong>相似变换</strong>。</p>
+<p>算法处理的对象是三角剖分后得到的三角形，在第一步算法中可以定义三角形由其三个顶点表示<span class="math inline">\(\{v_0, v_1, v_2\}\)</span> 。</p>
+<p>由这三个顶点，可以定义出一个关于这个三角形的一个局部坐标系。其中设<span class="math inline">\(\overrightarrow{v_0v_1}\)</span>为局部坐标系中的<span class="math inline">\(X\)</span>轴正方向，<span class="math inline">\(\overrightarrow{v_0v_1}\)</span>向量逆时针旋转<span class="math inline">\(90^{\circ}\)</span> 定义为局部坐标系中的<span class="math inline">\(Y\)</span>轴正方向。总体如下图所示</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415230844834.png" /></p>
+<p>如此，就得到一个关于三角形的局部坐标系，进而可以表示在这个局部坐标系里的另一个点<span class="math inline">\(v_2\)</span>的局部坐标<span class="math inline">\(v_2 = (x_{01},y_{01})\)</span>, 也就是说<span class="math inline">\(v_2\)</span>可以表示为<span class="math inline">\(v_0，v_1\)</span>的线性表达式 <span class="math display">\[
+v_2  = v_0 + x_{01}\overrightarrow{v_0v_1}+y_{01}R_{90}\overrightarrow{v_0v_1}
+\]</span> 上式中<span class="math inline">\(R_{90} = \left[\matrix {0 &amp;-1 \\ 1 &amp; 0}\right]\)</span>，表示逆时针旋转<span class="math inline">\(90^{\circ}\)</span>的旋转矩阵。</p>
+<p>当图形产生形变后，图形内的每个三角形也会发生对应的形变，将形变后的三角形由新的三个点表示为<span class="math inline">\(\{v_0^\prime, v_1^\prime, v_2^\prime\}\)</span>。由下图所示：</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220415232115137.png" /></p>
+<p>为了尽可能保持形变后三角形的形状，即在以<span class="math inline">\(\overrightarrow{v_0v_1}\)</span>为<span class="math inline">\(X\)</span>轴正向，<span class="math inline">\(R_{90}\overrightarrow{v_0v_1}\)</span>为<span class="math inline">\(Y\)</span>轴正向的坐标系下，<span class="math inline">\(v_2^\prime\)</span>要尽可能接近原三角形的 <span class="math inline">\(v_2^{desired}\)</span> 。即在局部坐标系下其对应位置坐标<span class="math inline">\((x_{01},y_{01})\)</span>不变。其中由前文易知 <span class="math display">\[
+v_2^{desired}  = v_0^\prime + x_{01}\overrightarrow{v_0^\prime v_1^\prime}+y_{01}R_{90}\overrightarrow{v_0^\prime v_1^\prime}
+\]</span> 则 <span class="math inline">\(v_i^{desired}\)</span> 和 <span class="math inline">\(v_i^{\prime}\)</span>之间的误差可以表示为 <span class="math display">\[
+E_{\{v\prime\}} = ||v_i^{desired} -v_i^{\prime}||
+\]</span> 优化目标，即能量函数就是使得剖分后得到的三角形中所有顶点误差最小，尽可能使得三角形保持住最初的形状。</p>
+<p>显然由能量函数的定义可知， <span class="math inline">\(E\)</span>的值将其展开肯定式一个关于 <span class="math inline">\(v\prime\)</span> 的等式</p>
+<p><span class="math display">\[v\prime=(v_{0x}^{\prime}, v_{0y}^{\prime},v_{1x}^{\prime},v_{1y}^{\prime},v_{2x}^{\prime},v_{2y}^{\prime})\]</span></p>
+<p>可以讲能量函数展开得到下式： <span class="math display">\[
+E_{\left\{v_{2}\right\}}=\left(v_{0 x}{ }^{\prime}+x_{01}\left(-v_{0 x}{ }^{\prime}+v_{1 x}{ }^{\prime}\right)+y_{01}\left(v_{0 y}{ }^{\prime}-v_{1 y}{ }^{\prime}\right)-v_{2 x}\right)^{2}+\left(v_{0 y}{ }^{\prime}+y_{01}\left(-v_{0 x}{ }^{\prime}+v_{1 x}{ }^{\prime}\right)+x_{01}\left(-v_{0 y}{ }^{\prime}+v_{1 y}{ }^{\prime}\right)-v_{2 y}{ }^{\prime}\right)^{2}
+\]</span> 展开上式，系数矩阵 <span class="math inline">\(G\)</span> 可以表示为 <span class="math display">\[
+\left(\begin{array}{cccccc}
+x_{0,1}^{2}-2 x_{0,1}+y_{0,1}^{2}+1 &amp; 0 &amp; -x_{0,1}^{2}+x_{0,1}-y_{0,1}^{2} &amp; -y_{0,1} &amp; x_{0,1}-1 &amp; y_{0,1} \\
+0 &amp; x_{0,1}^{2}-2 x_{0,1}+y_{0,1}^{2}+1 &amp; y_{0,1} &amp; -x_{0,1}^{2}+x_{0,1}-y_{0,1}^{2} &amp; -y_{0,1} &amp; x_{0,1}-1 \\
+-x_{0,1}^{2}+x_{0,1}-y_{0,1}^{2} &amp; y_{0,1} &amp; x_{0,1}^{2}+y_{0,1}^{2} &amp; 0 &amp; -x_{0,1} &amp; -y_{0,1} \\
+-y_{0,1} &amp; -x_{0,1}^{2}+x_{0,1}-y_{0,1}^{2} &amp; 0 &amp; x_{0,1}^{2}+y_{0,1}^{2} &amp; y_{0,1} &amp; -x_{0,1} \\
+x_{0,1}-1 &amp; -y_{0,1} &amp; -x_{0,1} &amp; y_{0,1} &amp; 1 &amp; 0 \\
+y_{0,1} &amp; x_{0,1}-1 &amp; -y_{0,1} &amp; -x_{0,1} &amp; 0 &amp; 1
+\end{array}\right)
+\]</span></p>
+<p>本算法以三角形为单位，三角形的每个顶点都要计算一次误差函数，每个三角形有 <span class="math inline">\(E = E_{v_1^\prime} + E_{v_2^\prime} + E_{v_0^\prime}\)</span>, 所以有 <span class="math inline">\(E = \sum^n_{i=0}||v_i^{disired} - v_i ^\prime||^2\)</span> 。每个点是存在于不同的三角形里的，误差是累加计算的。 其中所有的点 <span class="math inline">\(v^\prime\)</span> 可以被分为自由点 <span class="math inline">\(u\)</span> 和控制点 <span class="math inline">\(q\)</span> , 将所有点和按先 <span class="math inline">\(u\)</span> 后 <span class="math inline">\(q\)</span> 的顺序排列，可以构造系数矩阵 <span class="math inline">\(G= \left[\matrix {G_{00} &amp;G_{01} \\ G_{10} &amp; G_{11}}\right]\)</span>。 能量函数可以表示为二次式形式。 <span class="math display">\[
+E_{1}=\mathbf{v}^{\prime \mathbf{T}} \mathbf{G} \mathbf{v}^{\prime}=\left(\begin{array}{l}
+\mathbf{u} \\
+\mathbf{q}
+\end{array}\right)^{\mathrm{T}}\left[\begin{array}{ll}
+\mathbf{G}_{00} &amp; \mathbf{G}_{01} \\
+\mathbf{G}_{10} &amp; \mathbf{G}_{11}
+\end{array}\right]\left(\begin{array}{l}
+\mathbf{u} \\
+\mathbf{q}
+\end{array}\right)
+\]</span> 对自由点 <span class="math inline">\(u\)</span> 求偏导，使得偏导数为0， 来构造最小化误差得下式 <span class="math display">\[
+\frac{\partial E_{1}}{\partial \mathbf{u}}=\left(\mathbf{G}_{00}+\mathbf{G}_{00}^{\mathrm{T}}\right) \mathbf{u}+\left(\mathbf{G}_{01}+\mathbf{G}_{10}^{\mathrm{T}}\right) \mathbf{q}=\mathbf{0}
+\]</span> 令 <span class="math inline">\(G^\prime = \left(\mathbf{G}_{00}+\mathbf{G}_{00}^{\mathrm{T}}\right)\)</span> , <span class="math inline">\(B = \left(\mathbf{G}_{01}+\mathbf{G}_{10}^{\mathrm{T}}\right)\)</span> 将上式表示为 <span class="math inline">\(G^\prime u + Bq = 0\)</span> ， 式中<span class="math inline">\(G^\prime\)</span>和<span class="math inline">\(B\)</span>都是固定的矩阵。矩阵元素都是由类似于局部坐标 <span class="math inline">\((x_{01}, y_{01})\)</span> 的组合成的，而这些局部坐标都是来自于输入的原始图形中的那些三角形，所以<span class="math inline">\(G^\prime\)</span>和<span class="math inline">\(B\)</span> 可以在程序输入图形后<strong>做一次预计算</strong> 即可。另外<strong>控制点 <span class="math inline">\(q\)</span></strong> 是随用户的拖动而实时变化的，<span class="math inline">\(q\)</span> 的坐标我们可以实时获取。</p>
+<p>在读取完三角形，做了预计算后，只剩下自由点 <span class="math inline">\(u\)</span> 为未知量， 只需要 对<span class="math inline">\(u\)</span> 求导，求解方程，解出未知数。计算量小，可以在实时完成</p>
+<h2 id="step-two---scale-adjustment">Step Two --scale adjustment</h2>
+<p>第二步以第一步的结果当作第二步输入来调整网格中的三角形的比例，第二大步算法中可以划分为两小步：</p>
+<h3 id="step">2.1 step</h3>
+<p>将每个三角形的原始三角形的三个点通过"<strong>旋转+平移，不包括裁剪和缩放"</strong> 来拟合到第一步生成的对应三角形。</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220418225555994.png" /></p>
+<p>如图所示, <span class="math inline">\(v^\prime\)</span> 表示算法中第一步时生成的三角形。 我们要使原始的三角形的三个顶点在通过“旋转+平移”时最小化原始三角形和第一步生成的三角形对应点的误差和。 <span class="math display">\[
+E_{\mathrm{f}\left\{v_{0}^{fitted}, v_{1}^{fitled}, v_{2}^{fited }\right\}}=\sum_{i=1,2,3}\left\|v_{i}^{fitted}-v_{i}{ }^{\prime}\right\|^{2}
+\]</span> 其中像第一步一样 <span class="math inline">\(v_{2}^{\text {fitted }}=v_{0}^{\text {fitted }}+x_{01} \overrightarrow{v_{0}^{\text {fitted }} v_{1}^{\text {fitted }}}+y_{01} R_{90} \overrightarrow{v_{0}^{\text {fitted }} v_{1}^{\text {fitted }}}\)</span></p>
+<p>在这一小步，我们针对的依然是三角形。但是在对三角形变形时，每个三角形单独最小化误差和，在这一小步，三角形与三角形之间是相互独立的。对于每个三角形，定义<span class="math inline">\(w=\left(v_{0 x}^{\text {fitted }}, v_{0 y}^{\text {fitted }}, v_{1 x}^{\text {fitted }}, v_{1 y}^{\text {fitted }}\right)^{T}\)</span>, 为了最小话能量函数<span class="math inline">\(E_f\)</span>, 像第一步一样写成系数矩阵的形式$ E_{f}=w^{T} F w $ ，对<span class="math inline">\(w\)</span> 求偏导得 <span class="math display">\[
+\frac{\partial E_{f}}{\partial w}=\left(F+F^{T}\right) w+C=0
+\]</span> 求解一个<span class="math inline">\(4 \times 4\)</span> 线性方程，<span class="math inline">\(F\)</span>是一个固定的矩阵，<span class="math inline">\(C\)</span> 可以通过第一步的结果计算得到。通过此可以得到一个和原始三角形相似的新的的三角形<span class="math inline">\(\left\{v_{0}^{fitted}, v_{1}^{fitled}, v_{2}^{fited }\right\}\)</span>， 通过按比例缩放<span class="math inline">\(\left\|v_{0}^{\text {fitted }}-v_{1}^{\text {fitted }}\right\| /\left\|v_{0}-v_{1}\right\|\)</span>，使三角形变得全等。</p>
+<h3 id="step-1">2.2 step</h3>
+<p>第一小步的目的是将原始三角形“旋转”和“平移”到一个第一步算法得到的三角形对应 “点与点距离和最小” 某个位置。而第二小步的目的是将三角形对应的“边与边”之间优化。</p>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220419223633573.png" /></p>
+<p>和之前一样可以将误差函数三条边的误差和表示为，注意现在计算的是边的误差和，和之前计算点的误差和不一样。 <span class="math display">\[
+E_{2\left\{v_{0}{ }^{\prime \prime} v_{1}{ }^{\prime \prime}, v_{2}{ }^{\prime \prime}\right\}}=\sum_{(i, j) \in\{(0,1),(1,2),(2,0)\}}\left\|\overrightarrow{v_{i}{ }^{\prime \prime} v_{j}{ }^{\prime \prime}}-\overrightarrow{v_{i}{ }^{\text {fitted }} v_{j}{ }^{\text {fitted }}}\right\|^{2}
+\]</span> 和第一步时一样，把所有的点按照自由点<span class="math inline">\(u\)</span>和控制点<span class="math inline">\(q\)</span>点重排，重写误差函数。 <span class="math display">\[
+E_{2}=v^{\prime \prime T} H v^{\prime \prime}+f v^{\prime \prime}+c=\left(\begin{array}{l}u \\ q\end{array}\right)^{T}\left[\begin{array}{cc}H_{00} &amp; H_{01} \\ H_{10} &amp; H_{11}\end{array}\right]\left(\begin{array}{l}u \\ q\end{array}\right)+\left(\begin{array}{ll}f_{0} &amp; f_{1}\end{array}\right)\left(\begin{array}{l}u \\ q\end{array}\right)+c
+\]</span> 和前面的步骤一样求偏导数</p>
+<p><span class="math display">\[
+\frac{\partial E_{2}}{\partial \mathbf{u}}=\left(\mathbf{H}_{00}+\mathbf{H}_{00}^{\mathrm{T}}\right) \mathbf{u}+\left(\mathbf{H}_{01}+\mathbf{H}_{10}^{\mathrm{T}}\right) \mathbf{q}+\mathbf{f}_{0}=\mathbf{0}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{H}^{\prime} \mathbf{u}+\mathbf{D q}+\mathbf{f}_{0}=\mathbf{0}
+\]</span></p>
+<p>显然，矩阵 <span class="math inline">\(H^\prime\)</span> 和矩阵 <span class="math inline">\(D\)</span> 都是系数矩阵 <span class="math inline">\(H\)</span> 的子矩阵构成的，<span class="math inline">\(f_0\)</span> 就是系数向量<span class="math inline">\(f\)</span>, 在推导能量方程时仅针对了一条边，但实际在计算中需要遍历三角形中的三个边。</p>
+<p>通过计算可以得到 <span class="math display">\[
+H=\left(\begin{array}{cccc}
+1 &amp; 0 &amp; -1 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; -1 \\
+-1 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; -1 &amp; 0 &amp; 1
+\end{array}\right)
+\]</span></p>
+<p><span class="math display">\[
+f=\left\{-2 v_{0, x}^{f}+2 v_{1, x}^{f},-2 v_{0, y}^{f}+2 v_{1, y}^{f}, 2 v_{0, x}^{f}-2 v_{1, x}^{f}, 2 v_{0, y}^{f}-2 v_{1, y}^{f}\right\}
+\]</span></p>
+<p>至此，我们就可以由矩阵<span class="math inline">\(H\)</span> 求出 <span class="math inline">\(H^\prime\)</span> 和 <span class="math inline">\(D\)</span>。</p>
+<p>很显然，<span class="math inline">\(H^\prime\)</span> 和 <span class="math inline">\(D\)</span> 都是固定的数值组成的矩阵。系数向量由$ f $第二步算法的第一小步的结果生成。 这些矩阵都可以在选定控制点 <span class="math inline">\(q\)</span> 后，做出预计算，然后未知的点 <span class="math inline">\(u\)</span> 可以通过求解能量函数得到。 可以满足形变过程中实时性的需求。做到实时交互。</p>
+<h3 id="appendix">Appendix</h3>
+<figure>
+<img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20220419235555747.png" alt="伪代码" /><figcaption aria-hidden="true">伪代码</figcaption>
+</figure>
+<h2 id="reference">Reference</h2>
+<ul>
+<li>无雨森的技术分享(wechat公众号)</li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/25846219">用数学编辑3D模型</a></li>
+<li>As-Rigid-As-Possible Shape Manipulation</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/cv/" rel="tag"># cv</a>
+              <a href="/tags/paper/" rel="tag"># paper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/28/daily/" rel="prev" title="随便写写">
+      <i class="fa fa-chevron-left"></i> 随便写写
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/04/28/arap-2/" rel="next" title="Implementing As-Rigid-As-Possible Shape Manipulation">
+      Implementing As-Rigid-As-Possible Shape Manipulation <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#motivation"><span class="nav-number">2.</span> <span class="nav-text">Motivation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#process"><span class="nav-number">3.</span> <span class="nav-text">Process</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#triangulation-and-registration"><span class="nav-number">4.</span> <span class="nav-text">Triangulation and registration</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#algorithm"><span class="nav-number">5.</span> <span class="nav-text">Algorithm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step-one--scale-free-construction"><span class="nav-number">6.</span> <span class="nav-text">Step One--scale-free construction</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step-two---scale-adjustment"><span class="nav-number">7.</span> <span class="nav-text">Step Two --scale adjustment</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#step"><span class="nav-number">7.1.</span> <span class="nav-text">2.1 step</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#step-1"><span class="nav-number">7.2.</span> <span class="nav-text">2.2 step</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#appendix"><span class="nav-number">7.3.</span> <span class="nav-text">Appendix</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">8.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="such"
+      src="/images/avatar_1.jpg">
+  <p class="site-author-name" itemprop="name">such</p>
+  <div class="site-description" itemprop="description">These violent delights have violent ends</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">such</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '4c3c296aa618af2f3f22',
+      clientSecret: '7c0354a7bf0302fdea06afd254c383d8f91bbb56',
+      repo        : 'suchot.github.io',
+      owner       : 'suchot',
+      admin       : ['suchot'],
+      id          : 'f315a44caf044a7dddba49ccc5855ee7',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
