@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120130504228.png">
 <meta property="og:image" content="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*gZxpT4wQs3fZ_Acj-hglhA-20211120153155126.jpeg">
 <meta property="article:published_time" content="2021-11-13T15:22:13.000Z">
-<meta property="article:modified_time" content="2021-11-20T08:11:41.877Z">
+<meta property="article:modified_time" content="2022-12-20T12:46:00.361Z">
 <meta property="article:author" content="such">
 <meta property="article:tag" content="生成模型">
 <meta property="article:tag" content="深度学习">
@@ -208,7 +208,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-20 16:11:41" itemprop="dateModified" datetime="2021-11-20T16:11:41+08:00">2021-11-20</time>
+                <time title="修改时间：2022-12-20 20:46:00" itemprop="dateModified" datetime="2022-12-20T20:46:00+08:00">2022-12-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,14 +251,10 @@
 <li>提高生成质量。</li>
 </ul>
 <h2 id="水滴伪影">水滴伪影</h2>
-<figure>
-<img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211118234610043.png" alt="image-20211118234610043" /><figcaption aria-hidden="true">image-20211118234610043</figcaption>
-</figure>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211118234610043.png" /></p>
 <p>水滴伪影，既出现在生成的图片上，也出现在feature map 上。虽然在生成图片上不明显，但是生成网络的很多层上都会出现（64*64以上），作者认为导致水滴的原因是因为AdaIN的风格迁移的操作， AdaIN 对每层 feature map 进行归一化，因此会潜在破坏feature map 之间的信息。</p>
 <h3 id="模型修改">模型修改</h3>
-<figure>
-<img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*ePDR3N6VMQCZ0T5ZXxODpA-20211120153115784.jpeg" alt="img" /><figcaption aria-hidden="true">img</figcaption>
-</figure>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*ePDR3N6VMQCZ0T5ZXxODpA-20211120153115784.jpeg" /></p>
 <blockquote>
 <p>图源：https://jonathan-hui.medium.com/gan-stylegan-stylegan2-479bdf256299</p>
 </blockquote>
@@ -281,20 +277,16 @@ w^{&#39;}_{ijk} = s_i \cdot w_{ijk}
 \]</span></p>
 <p>作者将之前的缩放特征图修改为缩放卷积的权重；<span class="math inline">\(s_i\)</span> 是第 <span class="math inline">\(i\)</span> 个特征图的缩放比例，经过缩放之后将输出的特征图重新权重归一化。<span class="math inline">\(\epsilon\)</span> 用来防止分母为0。 尽管从数学角度看，与实例归一化并不完全相等，但达到了近似的结果，并且训练过程更加稳定，最重要的是消除了“水滴”！</p>
 <h2 id="相伪问题">相伪问题</h2>
-<figure>
-<img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120111054915.png" alt="image-20211120111054915" /><figcaption aria-hidden="true">image-20211120111054915</figcaption>
-</figure>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120111054915.png" /></p>
 <p>指的是生成的影响在一些高频的特征上，比如牙齿缝隙，无论怎么调整latent数值，仍然出于几个特定的位置。作者分析了特征图之后。认为这种现象和使用porgressive growing有关，所以修改了这种递进架构。选择使用残差思想的skip-connection架构。</p>
-<figure>
-<img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120130504228.png" alt="image-20211120130504228" /><figcaption aria-hidden="true">image-20211120130504228</figcaption>
-</figure>
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/image-20211120130504228.png" /></p>
 <p>通过实验得出，生成器使用input/output skips，判别器使用Residual nets网络结构的效果最好。通过卷积和双线性上/下采样，来学习上一层和下一层之间的残差。</p>
 <h2 id="loss修改">loss修改</h2>
 <h4 id="延迟正则">延迟正则</h4>
 <p>StyleGANv1在每一次mini-batch后都会计算损失和正则，运算有些浪费，可以将一些正则简化为每隔16个batch运算一次，使得模型的性能更好了。</p>
 <h4 id="感知距离正则">感知距离正则</h4>
 <p>作者提到，感知距离可以用来衡量GAN的性能，为了控制人脸的属性，我们可以改变latent code ，我们更期待在成比例改变latent code某一属性时，得到生成图片的变化也是成比例的，也就是说，当生成图片的变化和预期不同时，就会产生惩罚。</p>
-<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*gZxpT4wQs3fZ_Acj-hglhA-20211120153155126.jpeg" alt="img" /> <span class="math display">\[
+<p><img src="https://raw.githubusercontent.com/suchot/blog-pic-bed/master/1*gZxpT4wQs3fZ_Acj-hglhA-20211120153155126.jpeg" /> <span class="math display">\[
 \mathbb{E}_{\mathbf{w},\mathbf{y} \sim \mathcal{N}\left(0, \mathbf{I}\right)} \left(||\mathbf{J}^{\mathbf{T}}_{\mathbf{w}}\mathbf{y}||_{2} - a\right)^{2}
 \]</span></p>
 <p><span class="math display">\[
@@ -406,20 +398,20 @@ w^{&#39;}_{ijk} = s_i \cdot w_{ijk}
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">19</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">19</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
